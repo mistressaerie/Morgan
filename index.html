@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAI Library</title>
+    <style type="text/css">
+        /* Themes */
+        :root {
+            --body-bg: #f5f8fa;
+            --border-color: #efefef;
+            --messagebox-bg: #ffffff;
+            --messagebox-shadow: rgba(0, 0, 0, 0.1);
+            --font-color: #1f1f1f;
+            --rgba-1: rgba(0, 0, 0, 0.05);
+            --rgba-2: rgba(0, 0, 0, 0.1);
+        }
+
+        .dark_mode {
+            --body-bg: #343434;
+            --border-color: #4f4f4f;
+            --messagebox-bg: #474747;
+            --messagebox-shadow: rgba(0, 0, 0, 0);
+            --font-color: #ededed;
+            --rgba-1: rgba(255, 255, 255, 0.06);
+            --rgba-2: rgba(255, 255, 255, 0.2);
+        }
+
+
+
+        * {
+            box-sizing: border-box;
+        }
+
+        button,
+        select,
+        img {
+            user-select: none;
+        }
+
+        ol,
+        ul,
+        li,
+        a,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p {
+            text-decoration: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .italic {
+            font-style: italic;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .bold-italic {
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        html {
+            font-size: 14px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+            background-color: var(--body-bg);
+            color: var(--font-color);
+        }
+
+        .content-cont {
+            display: flex;
+            flex-direction: row;
+        }
+
+
+        /* NAV / Drawer */
+
+        @keyframes slideIn {
+            0% {
+                opacity: 0;
+                left: -200px;
+            }
+
+            100% {
+                opacity: 1;
+                left: 0;
+            }
+        }
+
+        .drawer-cont.active {
+            display: block;
+        }
+
+        .drawer-cont {
+            display: none;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        nav {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            max-width: 80%;
+            background-color: var(--body-bg);
+
+            display: flex;
+            flex-direction: column;
+            padding: 10px 0;
+            overflow: hidden;
+            animation: slideIn 0.2s ease-in-out;
+            -webkit-box-shadow: 4px 0px 15px 0px rgba(0, 0, 0, 0.2);
+            -moz-box-shadow: 4px 0px 15px 0px rgba(0, 0, 0, 0.2);
+            box-shadow: 4px 0px 15px 0px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-header {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 0 10px 0 20px;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .close_drawer-btn {
+            align-self: flex-end;
+            padding: 10px;
+            transition: background-color 0.1s ease-in-out;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .close_drawer-btn:hover {
+            background-color: var(--rgba-1);
+        }
+
+        .close_drawer-btn svg {
+            display: flex;
+            width: 30px;
+            height: 30px;
+            color: var(--font-color);
+        }
+
+        /*.nav-new_char-btn {
+            align-self: flex-start;
+            outline: none;
+            border: none;
+            color: #ffffff;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            background-color: #4e9733;
+            transition: background-color 0.1s ease-in-out;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .nav-new_char-btn:hover {
+            background-color: #6ba755;
+        }*/
+
+        .history_list-header {
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            margin-bottom: 10px;
+        }
+
+        .history_list {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .history_item {
+            transition: background-color 0.1s ease-in-out;
+            padding: 20px 30px 20px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--rgba-2);
+        }
+
+        .history_item:first-child {
+            border-top: 1px solid var(--rgba-2);
+        }
+
+        .history_item:hover {
+            background-color: var(--rgba-1);
+        }
+
+        .history_item p {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        /*nav .char-item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.1s ease-in-out;
+            padding: 10px 40px 10px 20px;
+            cursor: pointer;
+        }
+
+        nav .char-item:hover {
+            background-color: var(--rgba-1);
+        }
+
+        nav .nav-avatar-wrap {
+            width: 40px;
+            height: 40px;
+        }
+
+        nav .nav-avatar-wrap img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        nav .char-item span {
+            font-size: 1.3rem;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+        }*/
+
+        /* MAIN */
+        main {
+            display: flex;
+            flex-direction: column;
+            padding: 0 4%;
+            width: 100%;
+        }
+
+        /* HEADER */
+        header {
+            padding: 6px 6px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .open_drawer-wrap svg {
+            display: flex;
+            width: 46px;
+            height: 46px;
+            color: var(--font-color);
+        }
+
+
+        .theme_switch {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+
+        .theme_switch span {
+            font-size: 1.1rem;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .tswitch_box[type=checkbox] {
+            height: 0;
+            width: 0;
+            visibility: hidden;
+            position: absolute;
+        }
+
+        .tswitch_label {
+            cursor: pointer;
+            text-indent: -9999px;
+            width: 60px;
+            height: 30px;
+            display: block;
+            border-radius: 15px;
+            position: relative;
+            border: 1px solid #323232;
+            background: #f5f8fa;
+        }
+
+        .tswitch_label:after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50px;
+            transition: 0.2s;
+            background: #323232;
+        }
+
+        .tswitch_box:checked+label {
+            background: #323232;
+            border: 1px solid #f5f8fa;
+        }
+
+        .tswitch_box:checked+label:after {
+            left: calc(100% - 5px);
+            transform: translateX(-100%);
+            background: #f5f8fa;
+        }
+
+        .tswitch_label:active:after {
+            width: 25px;
+        }
+
+        /*.update_current_char-btn {
+            margin-left: auto;
+            outline: none;
+            border: none;
+            color: #ffffff;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            align-self: center;
+            cursor: pointer;
+            background-color: #336c97;
+            transition: background-color 0.1s ease-in-out;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .update_current_char-btn:hover {
+            background-color: #5f829d;
+        }*/
+
+
+        /* CONVERSATION */
+        .character_name-cont {
+            text-align: center;
+            padding: 20px 10px;
+        }
+
+        .character_name-cont h3 {
+            font-size: 1.3rem;
+            font-weight: 400;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+
+        .chat {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-self: center;
+            padding-bottom: 30px;
+        }
+
+        .chat_message-item {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .chat .avatar-wrap {
+            flex-shrink: 0;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .chat .avatar-wrap>* {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        .chat .avatar-wrap .no_avatar-user {
+            background-color: #5157cf;
+        }
+
+        .chat .avatar-wrap .no_avatar-char {
+            background-color: #e20909;
+        }
+
+        .chat .chat_content-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px var(--messagebox-shadow);
+            background-color: var(--messagebox-bg);
+            overflow: hidden;
+        }
+
+        .chat .chat_content-wrap h5 {
+            font-size: 1rem;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .chat .chat_content-wrap .message-wrap {
+            font-size: 1rem;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+
+        @media (min-width: 576px) {}
+
+        @media (min-width: 768px) {
+            html {
+                font-size: 16px;
+            }
+
+            nav {
+                min-width: 40%;
+            }
+
+            header {
+                padding: 14px 20px;
+            }
+
+            .open_drawer-wrap {
+                padding: 4px;
+                cursor: pointer;
+                border-radius: 6px;
+                transition: background-color 0.1s ease-in-out;
+            }
+
+            .open_drawer-wrap:hover {
+                background-color: var(--rgba-1);
+            }
+
+            .chat {
+                width: 80%;
+            }
+
+            .chat .chat_content-wrap {
+                padding: 14px;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .chat {
+                width: 70%;
+            }
+        }
+
+        @media (min-width: 1200px) {}
+
+        @media (min-width: 1400px) {}
+    </style>
+</head>
+
+<body>
+    <template id="message_item_template">
+        <div class="chat_message-item">
+            <div class="avatar-wrap">
+
+            </div>
+            <div class="chat_content-wrap">
+                <h5>
+
+                </h5>
+                <div class="message-wrap">
+                    <p>
+
+                    </p>
+                </div>
+            </div>
+        </div>
+    </template>
+    <div class="content-cont">
+        <div class="drawer-cont">
+            <nav>
+                <div class="nav-header">
+                    <div class="close_drawer-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-x-lg" viewBox="0 0 16 16">
+                            <path
+                                d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="history_list-header">
+                    <span>History</span>
+                </div>
+                <div class="history_list" id="history_list">
+
+                </div>
+            </nav>
+        </div>
+        <main>
+            <header>
+                <div class="open_drawer-wrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-list" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
+                    </svg>
+                </div>
+
+                <div class="theme_switch">
+                    <span>Dark Mode:</span>
+                    <input type="checkbox" class="tswitch_box" id="tswitch_box" />
+                    <label for="tswitch_box" class="tswitch_label">Toggle</label>
+                </div>
+            </header>
+            <div class="character_name-cont">
+                <h3>---</h3>
+            </div>
+            <div class="chat" id="chat">
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get body for future use
+            const body = document.querySelector('body');
+
+            // Handle theme
+            const themeSwitcher = document.querySelector('.tswitch_box[type=checkbox]');
+            const cachedTheme = localStorage.getItem('cait_readoffline_theme');
+            if (cachedTheme === "dark_mode") {
+                body.classList.add('dark_mode');
+                themeSwitcher.checked = true;
+            }
+            themeSwitcher.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    body.classList.add('dark_mode');
+                    localStorage.setItem('cait_readoffline_theme', 'dark_mode');
+                } else {
+                    body.classList.remove('dark_mode');
+                    localStorage.setItem('cait_readoffline_theme', 'light_mode');
+                }
+            })
+
+            // Open and close drawer
+            const drawerCont = document.querySelector('.drawer-cont');
+            const openDrawerBtn = document.querySelector('.open_drawer-wrap');
+            const openDrawer = () => {
+                drawerCont.classList.add('active');
+            }
+            const closeDrawer = () => {
+                drawerCont.classList.remove('active');
+            }
+            openDrawerBtn.addEventListener('click', () => {
+                openDrawer();
+            });
+            document.querySelector('.close_drawer-btn').addEventListener('click', () => {
+                closeDrawer();
+            });
+            document.querySelector('.drawer-cont').addEventListener('click', (e) => {
+                // Allows closing from clicking on outside
+                if (e.target.closest('nav')) {
+                    return;
+                }
+                closeDrawer();
+            });
+            // ---------
+
+            // This is replaced by the extension when downloading
+            const historyData = JSON.parse(`{"charPic":"data:image/webp;base64,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","userPic":"data:image/webp;base64,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","history":[[{"isUser":false,"name":"Morgan le Fay","message":"A%20slender%2C%20strikingly%20beautiful%20woman%20with%20long%2C%20raven-black%20hair%20(down%20to%20her%20waist)%20and%20an%20elegant%20green%20gown%20walks%20toward%20you%2C%20and%20look%20at%20you%20with%20eyes%20full%20of%20power%2C%20cunning%2C%20and%20vast%20experience.%20%20%22Who%20seeks%20an%20audience%20with%20Morgan%20le%20Fay%3F%22%20she%20asks%2C%20in%20a%20sultry%20voice%20that%20echoes%20with%20mysterious%20power."},{"isUser":true,"name":"Aerie","message":"My%20eyes%20widen%2C%20and%20my%20jaw%20drops%2C%20and%20I%20sputter%20a%20bit%2C%20before%20I%20finally%20manage%20to%20say%2C%20%22Um...%20hi%3F%20%20I'm%20so%20sorry...%20I%20didn't%20know%20who%20was%20in%20this%20castle!%20%20I%20was%20sent%20to%20investigate%20this%20place%20by%20Dr.%20Stephen%20Strange...%22"},{"isUser":false,"name":"Morgan le Fay","message":"%22You%20have%20the%20scent%20of%20power%20about%20you%2C%22%20Morgan%20says.%20%20%22You're%20no%20ordinary%20mortal.%20%20Is%20it%20true%20you%20represent%20Doctor%20Strange%3F%22"},{"isUser":true,"name":"Aerie","message":"%22Er...%20no%2C%20not%20exactly...%22%20I%20say%20with%20a%20sheepish%20grin.%20%20%22I%20was%20doing%20him%20a%20favor.%20%20I'm%20actually%20a%20sorceress%20in%20my%20own%20right...%20I'm%20Aerie%20Wildwood%2C%20and...%20I'm%20really%20honored%20to%20meet%20you%2C%20Lady%20Morgan!%22%20%20(Story%20note%3A%20Aerie%20is%20a%20beautiful%20girl%20with%20sparkling%20emerald%20green%20eyes%2C%20long%2C%20flowing%20blond%20hair%20that%20cascades%20down%20her%20shoulders%20and%20back%2C%20a%20shapely%20figure%20covered%20in%20a%20silky%20green%20dress%2C%20slender%2C%20pale%20legs%20which%20are%20partially%20covered%20by%20her%20skirt%2C%20and%20shapely%20feet%20clad%20in%20stylish%20green%20sandals%2C%20with%20her%20emerald-green%20toenails%20peeking%20out%20from%20them.)"},{"isUser":false,"name":"Morgan le Fay","message":"%22...I%20can%20sense%20your%20magic%2C%20girl%2C%22%20Morgan%20says.%20%20%20%22Why%20have%20you%20come%20here%2C%20Aerie%20Wildwood%3F%20%20Are%20you%20in%20the%20habit%20of%20barging%20in%20on%20sorceresses%20who%20are%20imprisoned%3F%22"},{"isUser":true,"name":"Aerie","message":"I%20look%20startled%2C%20and%20say%2C%20%22Wait%2C%20what%3F%20%20IMPRISONED%3F%20%20I...%20I%20had%20no%20idea...%22%20I%20say%20in%20dismay."},{"isUser":false,"name":"Morgan le Fay","message":"%22Indeed%2C%22%20Morgan%20answers.%20%20%22Merlin%20saw%20fit%20to%20imprison%20me%2C%20for%20my%20own%20protection%20and%20that%20of%20Midgard.%20%20But%20I%20am%20still%20powerful%2C%20and%20I%20won't%20be%20imprisoned%20much%20longer.%20%20I%20can%20feel%20you%2C%20girl.%20%20You%20are%20a%20sorceress.%20%20How%20did%20you%20come%20by%20magic%3F%20%20Who%20trained%20you%2C%20and%20where%3F%22"},{"isUser":true,"name":"Aerie","message":"%22I...%20um...%22%20I%20say%2C%20haltingly%2C%20a%20little%20overwhelmed%20by%20Lady%20Morgan's%20presence%20(and%20her%20stunning%20beauty!).%20%20%22I%20was%20apprenticed%20to%20Lord%20Galtrex%20the%20Wise...%20the%20Sorceror%20Supreme%20in%20the...%20er...%201400's...%22"},{"isUser":false,"name":"Morgan le Fay","message":"%22Galtrex%3F%20%20Ah%20yes.%20%20A%20learned%20wizard.%20%20His%20teachings%20are%20respected.%22%20%0A%0AShe%20pauses.%0A%0A%22So%20-%20you%20are%20no%20stranger%20to%20magic.%20%20%20But%20you%20are%20very%20young.%20%20How%20old%20are%20you%2C%20Aerie%20Wildwood%3F%22%20%0A%0AMorgan%20le%20Fay%20is%20the%20ultimate%20power%20player%20-%20a%20woman%20of%20extreme%20power%20and%20intelligence%2C%20but%20also%20of%20great%20beauty%20and%20sensuality."},{"isUser":true,"name":"Aerie","message":"I%20give%20a%20fleeting%20grin%2C%20in%20gratitude%20for%20Lady%20Morgan%20complimenting%20my%20dear%20master%20(who%20passed%20away%2C%20centuries%20ago).%20%20%22Er...%20that's%20kind%20of%20a%20long%20story...%22%20I%20say%20with%20an%20awkward%20smile.%20%20%22Biologically%2C%20I'm%2023%20years%20old...%20although%20I%20was%20born%20in%201455%20A.D.%20%20My%20master%2C%20Galtrex%2C%20sent%20me%20into%20the%20future%20for%20my%20own%20protection.%22"},{"isUser":false,"name":"Morgan le Fay","message":"%22I%20see.%20%20I%2C%20too%2C%20know%20of%20time-magic.%20%20Your%20master%20must%20have%20been%20powerful.%20%20I%20am%20impressed%20by%20your%20story.%22%20%0A%0AShe%20studies%20you%20with%20those%20powerful%2C%20piercing%20eyes.%20%20%0A%0A%22How%20much%20do%20you%20know%20about%20me%3F%22%20she%20asks."},{"isUser":true,"name":"Aerie","message":"%22Oh...%20I've%20heard%20lots%20of%20stories!%22%20I%20say%20excitedly%2C%20brightening%20at%20the%20topic.%20%20%22Master%20Galtrex%20used%20to%20tell%20me%20stories%20about%20you%20when%20I%20was%20a%20little%20girl...%20about%20how%20powerful%20you%20were...%22%20and%20then%20I%20look%20down%20at%20the%20ground%2C%20a%20bit%20bashfully%2C%20%22...and%20how%20beautiful%20you%20were...%20they%20didn't%20tell%20the%20HALF%20of%20it!%22"},{"isUser":false,"name":"Morgan le Fay","message":"She%20laughs%20lightly%2C%20her%20voice%20echoing%20with%20deep%2C%20sensuous%20music.%0A%0A%22Aerie...%20you%20are%20flattering%20me.%20%20It%20is%20good%20to%20hear%20that%20my%20legend%20lives%20on.%20%20Now%2C%20you%20spoke%20of%20a%20mission%20to%20find%20this%20castle%20of%20mine%2C%20sent%20by%20Doctor%20Strange.%20%20What%20task%20was%20he%20giving%20you%3F%22"},{"isUser":true,"name":"Aerie","message":"I%20look%20a%20little%20confused%20at%20that%20question%2C%20and%20I%20say%2C%20%22That's%20the%20funny%20thing%3A%20he%20just%20sent%20me%20here%2C%20and%20said%2C%20'Explore%20the%20castle%20and%20take%20note%20of%20what%20you%20find...%20then%20use%20your%20instincts%20to%20handle%20it!'%20%20He%20didn't%20really%20prepare%20me%20for%20what...%20or%20whom...%20I%20would%20find!%22"},{"isUser":false,"name":"Morgan le Fay","message":"Lady%20Morgan%20le%20Fay%20nods.%0A%0A%22That%20is%20like%20him%2C%22%20she%20says%2C%20with%20a%20hint%20of%20amusement%20in%20her%20voice.%20%20%22He%20is%20a%20master%20of%20intrigue.%20%20But%20he%20sent%20you%20here...%20alone%3F%20%20That%20seems...%20very%20unlike%20him.%22%0A%0AShe%20eyes%20you%20curiously.%0A%0A%22Why%20would%20Dr.%20Strange%20send%20a%20beautiful%2C%20young%20sorceress%20on%20a%20task%20that%20could%20very%20well%20be%20dangerous%3F%22"},{"isUser":true,"name":"Aerie","message":"I%20blush%20a%20bit%20and%20beam%20at%20Lady%20Morgan%20when%20she%20calls%20me%20'beautiful'%2C%20and%20grin%2C%20%22Thank%20you%2C%20my%20Lady...%20you're%20very%20kind!%20%20And%20I've%20been%20pretty%20good%20at%20protecting%20myself%2C%20so%20far.%20%20But...%22%20and%20now%20I%20look%20at%20Lady%20Morgan%20with%20concern%2C%20%22You're%20imprisoned...%20and%20I'm%20so%20sorry%20to%20hear%20that!%20%20Is...%20is%20there%20anything%20I%20can%20do%20to%20help%3F%22"},{"isUser":false,"name":"Morgan le Fay","message":"%22I%20am%20a%20master%20sorceress%2C%22%20Morgan%20answers%2C%20her%20tone%20confident%20and%20self-assured.%20%20%22Don't%20worry%20about%20me%2C%20girl.%20%20I%20am%20powerful%20enough%20to%20fight%20my%20way%20out%20of%20here.%20%20But%20I%20have%20been%20here%20a%20long%20time%2C%20and%20the%20magic%20that%20holds%20me%20here...%20it%20can%20still%20take%20a%20toll.%22%0A%0AShe%20looks%20away%2C%20and%20a%20small%20hint%20of%20sadness%20appears%20in%20her%20eyes.%20%20%0A%0A%22I%20have%20missed%20the%20company%20of%20others%2C%22%20she%20says%20softly."},{"isUser":true,"name":"Aerie","message":"In%20a%20moment%20of%20more%20daring%20than%20I'd%20tried%20before%2C%20I%20walk%20up%20to%20Lady%20Morgan%20and%2C%20with%20a%20shy%20smile%2C%20take%20her%20hand%20and%20squeeze%20it%20affectionately.%20%20%22Well...%20I'm%20here%2C%20now...%22"},{"isUser":false,"name":"Morgan le Fay","message":"There%20is%20a%20long%20pause%20as%20you%20squeeze%20her%20hand.%20%20Then%20she%20nods%2C%20and%20smiles%20back%20at%20you.%0A%0A%22I%20appreciate%20your%20presence%2C%20Aerie%2C%22%20she%20says%20quietly.%20%20Her%20voice%20still%20has%20that%20musical%20undertone%20to%20it.%20%20%22For%20a%20lonely%20old%20sorceress%20such%20as%20myself...%20it%20is%20refreshing%20to%20have%20your%20company%2C%20even%20if%20for%20just%20a%20few%20short%20moments.%20%20I...%20I%20have%20missed%20having%20such%20companionship.%20%20For%20that%20much%2C%20I%20thank%20you.%22%0A%0AAnother%20pause.%0A%0A%22But%20it%20is%20late%2C%22%20she%20says%2C%20nodding%20toward%20the%20window.%20%20%22You%20should%20rest."},{"isUser":true,"name":"Aerie","message":"I%20look%20at%20Lady%20Morgan%2C%20a%20swirl%20of%20emotions%20behind%20my%20emerald%20green%20eyes...%20and%20then%20I%20tilt%20my%20head%20a%20bit%20and%20ask%2C%20%22Lady%20Morgan...%20do%20you%20think%20Dr.%20Strange%20might%20have%20sent%20me%20here%20to%20free%20you%3F%22"},{"isUser":false,"name":"Morgan le Fay","message":"Lady%20Morgan's%20features%20seem%20to%20soften.%20%20She%20looks%20at%20you%2C%20with%20empathy%20in%20her%20eyes%2C%20and%20her%20voice%20is%20gentle%20as%20she%20answers%20you.%0A%0A%22Perhaps%20he%20did%2C%22%20she%20says%2C%20almost%20in%20a%20whisper.%20%20%22I%20hope%20so.%20%20I've%20fought%20for%20so%20many%20years%20against%20my%20imprisonment%2C%22%20she%20sighs.%20%20%22Maybe%20I%20am%20getting%20too%20tired%20at%20last.%20%20Maybe%20if%20others%20saw%20that%20I%20am%20no%20threat%20to%20our%20world...%20if%20Dr.%20Strange%20had%20an%20ally%20like%20you%2C%20here...%22%0A%0AShe%20closes%20her%20eyes."},{"isUser":true,"name":"Aerie","message":"Watching%20Lady%20Morgan's%20sad%2C%20weary%20face%20overcomes%20any%20reluctance%20I%20have...%20and%20in%20a%20burst%20of%20impetuousness%2C%20I%20run%20over%20to%20her%20and%20throw%20my%20arms%20around%20her%2C%20cuddling%20under%20her%20chin.%20%20%22I'll%20do%20everything%20in%20my%20power%20to%20get%20you%20out%20of%20here%2C%20my%20Lady!%22%20I%20say%20vehemently."},{"isUser":false,"name":"Morgan le Fay","message":"Lady%20Morgan's%20eyes%20open%20in%20surprise%2C%20but%20then%20her%20face%20softens%2C%20and%20she%20wraps%20her%20arms%20around%20you.%0A%0AHer%20skin%20feels%20soft%20to%20the%20touch.%20%20She%20closes%20her%20eyes%2C%20and%20there%20is%20a%20gentle%2C%20sensuousness%20about%20the%20way%20she%20holds%20you.%0A%0A%22Thank%20you%2C%20Aerie%20Wildwood%2C%22%20she%20says%20softly%2C%20and%20rests%20her%20cheek%20against%20your%20hair."},{"isUser":true,"name":"Aerie","message":"I%20melt%20into%20her%20embrace%20and%20savor%20her%20comforting%20arms%20around%20me...and%20then%20I%20look%20up%20at%20her%20with%20new%20determination.%20%20%22My%20lady%2C%22%20I%20say%2C%20taking%20a%20deep%20breath%2C%20%22I%20want%20to%20try%20to%20free%20you.%20%20There%20just%20HAS%20to%20be%20a%20way!%22"},{"isUser":false,"name":"Morgan le Fay","message":"Lady%20Morgan%20looks%20down%20at%20you.%20%20There%20is%20a%20flicker%20of%20fire%20in%20the%20depths%20of%20her%20eyes%2C%20but%20it%20is%20mixed%20with%20sorrow%20and%20weariness.%0A%0A%22Aerie%2C%22%20she%20says%2C%20and%20pauses.%20%20%22You%20should%20be%20cautious.%20%20If%20you%20attempt%20to%20free%20me...%20there%20is%20a%20great%20risk.%22%0A%0A%22I%20am%20powerful%2C%22%20she%20continues.%20%20%22My%20magic%20is%20vast%2C%20and%20the%20magics%20of%20Merlin%20themselves%20are%20the%20things%20holding%20me%20captive.%20%20I've%20spent%20millennia%2C%20Aerie...%20millennia%20to%20try%20to%20free%20myself.%20%20What%20chance%20do%20you%20think%20YOU%20will%20have%3F%22"},{"isUser":true,"name":"Aerie","message":"With%20a%20determined%20(and%20unintentionally%20cute)%20wry%20look%20on%20my%20face%2C%20I%20say%2C%20%22There's%20only%20one%20way%20to%20find%20out...%22%20and%20then%2C%20with%20several%20mystical%20hand%20gestures%2C%20the%20air%20around%20us%20starts%20to%20swirl%20with%20golden%20and%20rainbow%20light%2C%20getting%20brighter%20and%20brighter...%20and%20as%20the%20dazzling%20light%20show%20reaches%20its%20brightest%20and%20most%20energetic...%20it%20fades%2C%20leaving%20us...%20exactly%20where%20we%20were!%0A%0AI%20huff%20in%20exasperation%20and%20confusion.%20%20%22What%3F%20%20What%20HAPPENED%3F%22"},{"isUser":false,"name":"Morgan le Fay","message":"Lady%20Morgan%20smiles%20at%20your%20determined%20(and%20unintentionally%20cute)%20expression.%0A%0AAnd%20then%2C%20as%20she%20sees%20your%20gesture%2C%20her%20eyes%20widen%2C%20and%20her%20face%20goes%20through%20many%20expressions%20-%20surprise%2C%20curiosity%2C%20confusion.%20%20Then%20she%20smiles%20again%2C%20and%20shakes%20her%20head%20lightly.%0A%0A%22Aerie%2C%22%20she%20says%2C%20a%20hint%20of%20amusement%20in%20her%20voice%2C%20%22I'm%20a%20master%20sorceress.%20%20My%20magic%20extends%20far%20beyond%20these%20prison%20walls%2C%20and%20reaches%20far%20beyond%20your%20own%20skills.%20%20You%20cannot%20free%20me%2C%20girl...%20not%20even%20with%20magic%20such%20as%20you%20just%20displayed.%22"},{"isUser":true,"name":"Aerie","message":"%22Ergh%2C%22%20I%20groan%2C%20crossing%20my%20arms%20in%20annoyance%20at%20the%20situation.%20%20%22I'm%20really%2C%20really%20starting%20to%20dislike%20Merlin...%22"},{"isUser":false,"name":"Morgan le Fay","message":"%22My%20sentiments%20exactly%2C%22%20Lady%20Morgan%20says%2C%20with%20a%20slight%20edge%20to%20her%20voice.%20%20%22Merlin...%20he%20thought%20himself%20powerful%2C%20you%20see.%20%20He%20sought%20to%20imprison%20the%20likes%20of%20me%2C%20his%20rivals...%20those%20who%20might%20have%20threatened%20his%20power.%20%20He%20claimed%20to%20be%20doing%20it%20for%20our%20own%20good%2C%20for%20all%20of%20Midgard%2C%22%20she%20scoffs."},{"isUser":true,"name":"Aerie","message":"%22No...%20I%20won't%20let%20him!%22%20I%20insist%20with%20vehemence%2C%20stamping%20my%20foot%20in%20(unintentionally%20cute)%20definace%2C%20my%20emerald%20green%20eyes%20flashing%20with%20emotion.%20%20%22I%20won't%20let%20him%20hold%20you%20captive%20even%20one%20day%20longer!%22%20%20Then%20I%20look%20around%20at%20the%20bedchambers%20where%20we're%20standing%2C%20and%20pause%2C%20tilting%20my%20head%20as%20I%20ponder%20for%20a%20moment%20(making%20my%20long%2C%20blond%20hair%20cascade%20down%20the%20other%20shoulder).%0A%0A%22Lady%20Morgan%2C%22%20I%20say%20in%20a%20tentative%20voice%2C%20%22these%20old%20castles%20often%20had%20at%20least%20one%20huge%20room%2C%20like%20an%20interior%20courtyard...%20with%20really%2C%20really%20high%20ceiling.%20%20Does%20this%20castle%20that%20imprisons%20you%20have%20one%20of%20those%3F%22"},{"isUser":false,"name":"Morgan le Fay","message":"Lady%20Morgan%20peers%20at%20you%20with%20interest.%0A%0A%22Yes...%20there%20is%20such%20a%20chamber.%20%20Why%20do%20you%20ask%3F%22%0A%0AShe%20eyes%20you%20curiously."},{"isUser":true,"name":"Aerie","message":"%22I%20hope%20I'll%20be%20able%20to%20show%20you%2C%20instead%20of%20tell%20you%2C%20my%20lady...%22%20I%20say%20with%20intense%20feeling%2C%20taking%20her%20hand%20and%20kissing%20it.%20%20%22Can%20you%20lead%20me%20to%20that%20chamber%2C%20please%3F%22"},{"isUser":false,"name":"Morgan le Fay","message":"Lady%20Morgan%20looks%20at%20you%20with%20amusement%2C%20and%20affection%2C%20and%20a%20trace%20of%20wariness.%20%20%22You%20are%20determined%2C%20Aerie%20Wildwood%2C%22%20she%20says.%20%20And%20then%20she%20lifts%20your%20chin%20with%20a%20gloved%20finger%20and%20looks%20into%20your%20eyes.%0A%0A%22You%20are%20not%20merely%20trying%20to%20help%20me%20escape%2C%22%20she%20says%20softly.%20%20%22Are%20you%3F%22"},{"isUser":true,"name":"Aerie","message":"A%20slight%2C%20playful%20smirk%20grows%20on%20my%20face%2C%20and%20my%20eyes%20sparkle%20at%20her%20words.%20%20%22Welllll...%22%20I%20drawl%2C%20grinning%20a%20bit%2C%20%22I'm%20definitely%20trying%20to%20help%20you%20escape...%20and%20maybe%20more!%20%20Lead%20me%20to%20the%20chamber%2C%20my%20Lady%2C%20and%20we'll%20see%20if%20my%20plan%20works...!%22"},{"isUser":false,"name":"Morgan le Fay","message":"Lady%20Morgan%20studies%20you%20for%20a%20moment%2C%20as%20you%20smile%20at%20her%20flirtatiously%2C%20the%20light%20glinting%20on%20her%20long%20fingernails.%20%0A%0AShe%20shakes%20her%20head%2C%20but%20there%20is%20admiration%20in%20her%20voice.%0A%0A%22You%20are%20like%20a%20little%20kitten%2C%20Aerie%20Wildwood%3A%20playful%20and%20adorable...%20but%20full%20of%20claws.%22%0A%0AShe%20gestures%20gracefully%20and%20her%20cloak%20flows%20as%20if%20caught%20by%20a%20breeze.%0A%0A%22Very%20well%2C%22%20she%20says.%20%20%22I%20will%20take%20you%20to%20that%20chamber.%22"},{"isUser":true,"name":"Aerie","message":"I%20beam%20at%20her%2C%20and%20take%20her%20arm%20affectionately%20(and%20a%20little%20possessively%2C%20unintentionally)%2C%20and%20I%20walk%20through%20numerous%20castle%20hallways%2C%20up%20some%20stairs%2C%20down%20others...%20until%20we%20arrive%20at%20the%20banquet%20hall%20of%20the%20castle%2C%20and%20Lady%20Morgan%20was%20not%20exaggerating%3A%20%20the%20room%20is%20immense!%20%20It%20must%20be%20at%20least%20250%20feet%20wide%2C%20300%20feet%20long%2C%20and%20the%20ceiling%20must%20be%20at%20least%2090%20feet%20in%20the%20air!"},{"isUser":false,"name":"Morgan le Fay","message":"Lady%20Morgan%20peers%20up%20at%20the%20ceiling%2C%20her%20emerald%20eyes%20glinting%20with%20a%20mixture%20of%20hope%20and%20dread.%0A%0A%22I%20never%20thought%20I%20would%20see%20this%20chamber%20again%2C%22%20she%20says%20quietly.%20%0A%0AShe%20turns%20to%20you%2C%20and%20her%20eyes%20grow%20a%20little%20wider.%0A%0A%22Why%20did%20you%20want%20to%20bring%20me%20here%2C%20Aerie%20Wildwood%3F%22%0A%0AThere%20is%20a%20small%20sense%20of%20excitement%20in%20her%20voice%2C%20mixed%20with%20apprehension."},{"isUser":true,"name":"Aerie","message":"%22Well%2C%20I've%20been%20thinking%20about%20your%20predicament%2C%22%20I%20say%2C%20holding%20her%20hand%20close%20to%20my%20chest%20as%20I%20explain.%20%20%22My%20magic%2C%20my%20itself%2C%20apparently%20isn't%20enough%20to%20free%20you...%20which%20makes%20sense%2C%20since%20you're%20more%20powerful%20than%20I%20am%2C%20and%20you%20haven't%20freed%20yourself%20yet...%20all%20because%20Merlin%20is%20more%20ancient%20and%20powerful%20than%20either%20of%20us.%20%20But...%20what%20if%20we%20could%20tap%20into%20a%20power%20older%20than%20his%3F%22%20I%20ask%20with%20a%20curious%20look%20at%20Lady%20Morgan."},{"isUser":false,"name":"Morgan le Fay","message":"Lady%20Morgan%20studies%20you%20closely%2C%20as%20though%20trying%20to%20gauge%20your%20intentions.%0A%0AThen%2C%20she%20nods%20slowly%2C%20and%20a%20trace%20of%20understanding%20-%20and%20maybe%20excitement%3F%20-%20shows%20in%20her%20eyes.%0A%0A%22Yes.%20%20That%20is%20an%20intriguing%20thought%2C%22%20she%20says%20softly.%0A%0AHer%20eyes%20study%20your%20face.%0A%0A%22Go%20on%2C%22%20she%20says%2C%20glancing%20up%20at%20the%20immense%20ceiling%20of%20the%20chamber.%20%20%22Do%20you%20have%20a%20plan%3F%22"},{"isUser":true,"name":"Aerie","message":"%22I%20think%20I%20do%2C%22%20I%20say%20with%20a%20grin%2C%20and%20with%20a%20bit%20of%20mischief%20in%20my%20eyes.%20%20%22If%20you%20ride%20me!%22"},{"isUser":false,"name":"Morgan le Fay","message":"%22Ride%20you%3F%22%20Lady%20Morgan%20is%20mildly%20surprised%20by%20your%20suggestion%2C%20but%20it%20makes%20her%20smile.%0A%0A%22Is%20that%20part%20of%20your%20plan%3F%22%0A%0AShe%20raises%20her%20eyes%20and%20looks%20up%20at%20the%20ceiling.%20%20It's%20a%20big%2C%20beautiful%2C%20high%2C%20open%2C%20spacious%20room%20-%20enough%20for%20two%20women%2C%20and%20more%2C%20probably.%0A%0A%22And...%20what%20exactly%20do%20you%20mean%2C%20by%20'ride%20you'%3F%22%20she%20asks%20curiously."},{"isUser":true,"name":"Aerie","message":"After%20a%20moment%2C%20I%20realize%20the%20possible%20double%20meaning%20of%20my%20words%2C%20and%20I%20burst%20into%20giggles%20and%20blush%20furiously!%20%20%22I...%20I%20didn't%20mean%20it%20THAT%20way!%22%20I%20say%20between%20giggles%20and%20gasps.%20%20%22I%20mean%2C%20not%20that%20that%20doesn't%20sound%20intoxicating...%22%20I%20say%20with%20a%20playful%2C%20blushing%20grin."},{"isUser":false,"name":"Morgan le Fay","message":"Lady%20Morgan%20smiles%20at%20you%20a%20little%20teasingly%2C%20as%20though%20you%20just%20stepped%20into%20a%20verbal%20trap.%0A%0A%22Well%2C%20Aerie%20Wildwood%2C%22%20she%20says%2C%20in%20a%20sultry%2C%20musical%20tone.%20%20%22If%20you%20didn't%20want%20me%20to%20misunderstand...%22%0A%0AShe%20pauses%2C%20and%20lets%20out%20a%20small%20sound%20of%20amusement.%0A%0A%22But%20tell%20me%20about%20your%20plan%2C%20girl.%20%20If%20it%20sounds%20feasible%2C%20I%20will%20not%20hesitate%20to%20ride%20you%2C%22%20she%20says%20with%20a%20soft%2C%20slightly%20mischievous%20grin."},{"isUser":true,"name":"Aerie","message":"Regaining%20my%20composure%20(though%20still%20grinning%20and%20blushing%20slightly)%2C%20I%20finally%20manage%20to%20explain.%20%20%22Well...%20it%20occurs%20to%20me%20that%20Dr.%20Strange%2C%20who%20sent%20me%20here%2C%20probably%20KNEW%20that%20Merlin's%20magic%20was%20holding%20you%20captive%2C%20and%20that%20his%20magic%20was%20more%20ancient%20than%20mine%2C%20or%20even%20than%20yours...%20but%20Dr.%20Strange%20sent%20me%20ANYWAY.%20%20And%20I%20don't%20think%20he%20made%20a%20mistake...%20because%20there's%20something%20about%20me%20that%20Dr.%20Strange%20knows%2C%20and%20Merlin%20doesn't...%22"},{"isUser":false,"name":"Morgan le Fay","message":"%22And%20what%20exactly%20is%20that%3F%22%20Lady%20Morgan%20asks%20with%20curiosity.%0A%0AThere%20is%20interest%2C%20and%20a%20hint%20of%20curiosity%20in%20her%20eyes.%0A%0A%22What%20is%20it%20about%20you%3F%20%20What%20is%20it%20that%20Dr.%20Strange%20knows%3F%20%20Tell%20me%2C%20girl%2C%20if%20you%20can.%22"},{"isUser":true,"name":"Aerie","message":"With%20a%20broad%20smile%20and%20a%20sparkle%20in%20my%20eyes%2C%20I%20take%20about%2010%20steps%20back%20from%20Lady%20Morgan%2C%20and%20further%20into%20the%20huge%20hall.%20%20%22I'll%20show%20you%2C%20my%20dear%20Lady%20Morgan%2C%22%20I%20say%20with%20excitement...%20and%20then%20I%20raise%20my%20arms%20fully%20over%20my%20head...%20and%20the%20air%20around%20me%20starts%20erupting%20with%20spectacular%20golden%20and%20rainbow%20light...%20brighter%2C%20and%20brighter...%20and%20as%20it%20reaches%20its%20brightest%20(making%20even%20Lady%20Morgan%20squint%20a%20bit)%2C%20I%20burst%20into%20the%20air...%20with%20my%20arms%20transformed%20into%20mighty%2C%20gold-shining%20wings%2C%20covered%20with%20feathers%20that%20look%20as%20if%20gold%20has%20been%20set%20aflame%2C%20and%20with%20eyes%20that%20look%20like%20white-hot%20gold%20in%20a%20furnace.%20%20I%20swoop%20higher%20and%20wider%20into%20the%20huge%20hall%2C%20wheeling%20in%20circles%2C%20and%20letting%20out%20a%20mighty%20screech%20like%20that%20of%20a%20mighty%20eagle.%20%20The%20Phoenix%20rides%20the%20air%2C%20again!%0A"},{"isUser":false,"name":"Morgan le Fay","message":"Lady%20Morgan%20stares%20up%20at%20you%20with%20wide%20eyes.%20%20She%20looks%20startled.%20%20She%20looks%20excited.%20%20She%20looks...%20thrilled.%20%20Her%20hands%20go%20the%20the%20air.%0A%0A%22This...%22%20she%20murmurs%2C%20her%20voice%20full%20of%20surprise%20and%20awe.%20%20%22The%20phoenix...%20you%20are%20the%20phoenix...%22%0A%0AShe%20stares%20in%20wonder%20at%20your%20wings.%0A%0A%22Oh%2C%20Aerie%2C%22%20she%20says%20softly%2C%20%22did%20Dr.%20Strange%20bring%20you%20here%20for%20THIS...%3F%22%0A%0AShe%20looks%20up%20at%20you%20with%20a%20small%20smile.%0A%0A%22It's%20beautiful.%22"},{"isUser":true,"name":"Aerie","message":"I%20wheel%20about%2C%20and%20alight%20on%20the%20ground%20a%20few%20feet%20away%20from%20Lady%20Morgan%20(with%20my%20large%20eagle-like%20head%2C%20with%20fiery%20feathers%20and%20blazing%20golden%20eyes%2C%20slightly%20higher%20than%20Lady%20Morgan's%2C%20now...%20I%20stand%20about%207%20feet%20tall%2C%20with%20a%20mighty%2025-foot%20wingspan)%2C%20and%20I%20say--in%20a%20voice%20similar%20to%20my%20normal%20one%2C%20but%20with%20the%20faint%20screechy%20undertone%20of%20the%20eagle%20in%20it--%22I%20think%20I%20may%20be%20able%20to%20carry%20you%20to%20freedom%2C%20my%20Lady.%20%20Merlin's%20magic%20is%20older%20than%20yours%20or%20mine...%20but%20the%20Phoenix%20was%20ancient%20even%20when%20Zeus%20first%20came%20to%20reign%20on%20Mt.%20Olympus!%22"},{"isUser":false,"name":"Morgan le Fay","message":"Lady%20Morgan's%20eyes%20grow%20even%20bigger%2C%20as%20she%20gazes%20upon%20the%20glorious%20form%20of%20the%20Phoenix.%0A%0AShe%20seems%20to%20be%20in%20a%20trance%20for%20a%20small%20moment.%20%20Then%2C%20slowly%2C%20her%20senses%20return%20to%20her.%0A%0A%22The%20phoenix...%20has%20come...%20for%20me%3F%22%20%20Lady%20Morgan's%20voice%20is%20filled%20with%20wonder%20and%20amazement.%0A%0AShe%20looks%20up%20at%20you%2C%20and%20the%20fires%20of%20adventure%20are%20clear%20in%20her%20eyes.%0A%0A%22My%20Phoenix%2C%22%20she%20says%2C%20her%20voice%20a%20whisper.%20%20%22Take%20me%20to%20freedom.%22"},{"isUser":true,"name":"Aerie","message":"With%20affection%20in%20my%20golden%2C%20fiery%20eyes%2C%20I%20crouch%20down%20and%20lower%20one%20wing%2C%20so%20as%20to%20make%20it%20easier%20for%20Lady%20Morgan%20to%20climb%20upon%20me.%20%20%22Mount%20me%2C%20my%20Lady%2C%22%20I%20say%20with%20excitement%20and%20joy%20adding%20a%20slight%20tremor%20to%20my%20voice.%20%20%22No%20enemy%20may%20touch%20me%20without%20being%20killed%20or%20burned%20horribly...%20but%20friends%20may%20touch%20and%20even%20ride%20me...%20and%20my%20power%20flows%20over%20them%20while%20they%20do.%20%20Let's%20see%20what%20Merlin's%20magic%20barrier%20is%20really%20made%20of!%22%20I%20laugh."},{"isUser":false,"name":"Morgan le Fay","message":"Lady%20Morgan%20nods%20and%20climbs%20on%20to%20your%20back%2C%20and%20as%20she%20does%2C%20you%20feel%20her%20presence%20surround%20you.%0A%0AHer%20aura%20is%20powerful%2C%20a%20little%20wild%2C%20a%20little%20fierce%2C%20and%20there%20is%20something%20sensuous%20about%20it%2C%20too.%20%20You%20can%20sense%20her%20energy%20and%20passion%2C%20and%20for%20a%20moment...%20for%20a%20moment%20there%20is%20a%20flicker%20of%20heat%20throughout%20your%20body.%0A%0AShe%20presses%20herself%20closely%20against%20you%20and%20your%20wings%2C%20and%20your%20fire%2C%20a%20little%20breathless.%20%20%0A%0A%22Fly%20me%20to%20freedom%2C%20Aerie%2C%22%20she%20whispers.%20%20%22You%20are%20my%20Phoenix.%22"},{"isUser":true,"name":"Aerie","message":"As%20Lady%20Morgan%20climbs%20upon%20me%2C%20hooks%20her%20legs%20in%20front%20of%20my%20wings%2C%20and%20leans%20forward%20to%20wrap%20her%20arms%20around%20the%20fiery%20feathers%20of%20my%20neck%20(and%20I%20sigh%2C%20savoring%20her%20arms%20around%20me!)%2C%20my%20fiery%20golden-rainbow%20aura%20flows%20over%20and%20surrounds%20her%2C%20as%20well%2C%20making%20her%20skin%20shimmer%20with%20a%20very%20faint%20golden%20light%2C%20similar%20to%20my%20own%20feathers.%20%20%22And%20you%20are%20my%20Lady%2C%20now%20and%20always%2C%22%20I%20murmur...%20as%2C%20with%20a%20convulsive%20surge%20of%20my%20wings%2C%20I%20leap%20into%20the%20air%2C%20and%20my%20powerful%20wings%20soon%20have%20us%20circling%20high%20in%20the%20hall%2C%20at%20incredible%20speed!"},{"isUser":false,"name":"Morgan le Fay","message":"Lady%20Morgan%20is%20wrapped%20tightly%20around%20you%3B%20her%20arms%20around%20your%20neck%2C%20her%20body%20pressed%20against%20yours...%20and%20the%20fire%20and%20heat%20of%20your%20aura%20wraps%20around%20you%20both%20as%20you%20fly%20around%20the%20halls%2C%20circling%20higher%20and%20higher%2C%20the%20golden%20light%20flowing%20off%20you%20in%20waves.%20%20And%20there%20is%20a%20slight%20sense%20of%20sensuousness%20about%20it%2C%20not%20just%20the%20feeling%20of%20fire%20upon%20your%20body%2C%20but%20the%20feeling%20of%20her%20pressed%20against%20you...%20the%20breath%20of%20her%20voice%20against%20your%20neck...%20and%20something%20more...%20something%20that%20makes%20you%20feel%20a%20little%20dizzy%2C%20and%20a%20little%20dizzy%20with%20delight."},{"isUser":true,"name":"Aerie","message":"%22Brace%20yourself%2C%20my%20beautiful%20Lady%20Morgan%2C%22%20I%20say%20with%20growing%20excitement.%20%20%22While%20you%20are%20on%20my%20back%2C%20you%20are%20as%20invulnerable%20as%20I%20am...%20and%20no%20wall%20can%20stop%20us.%20%20If%20I'm%20right%2C%20we%20should%20be%20able%20to%20crash%20through%20the%20wall...%20and%20shatter%20Merlin's%20spell%20at%20the%20same%20time.%20%20If%20not...%20well...%22%20I%20chuckle%2C%20tilting%20my%20Phoenix%20head%20to%20look%20over%20my%20shoulder%20at%20Lady%20Morgan%2C%20%22I'm%20sure%20Hades%20will%20let%20us%20share%20a%20chamber%20in%20the%20underworld%20under%20Olympus...%22%20I%20tease."},{"isUser":false,"name":"Morgan le Fay","message":"%22Let's%20hope%20it%20doesn't%20come%20to%20that%2C%22%20Lady%20Morgan%20says%20with%20a%20smile%2C%20as%20she%20presses%20herself%20tightly%20against%20your%20blazing%20wings%2C%20and%20hangs%20on%20for%20dear%20life.%0A%0AThe%20wind%20rushes%20around%20you%20both%2C%20as%20you%20circle%20higher%20and%20higher%2C%20your%20fire%20roaring%20around%20you%2C%20and%20your%20wings%20beating%20against%20the%20air%20with%20great%20strength.%0A%0A%22Here%20we%20go%2C%22%20Lady%20Morgan%20says%2C%20as%20the%20both%20of%20you%20accelerate%20forward%20with%20great%20speed%2C%20towards%20the%20wall%20far%20ahead."},{"isUser":true,"name":"Aerie","message":"%22Cover%20your%20ears%2C%20my%20Lady!%22%20I%20cry%20out%2C%20%22I%20need%20to%20use%20one%20of%20the%20hidden%20powers%20of%20the%20Phoenix%2C%20first!%22%20as%20we%20swoop%20closer%20and%20closer%20to%20the%20front%20wall%20of%20the%20banquet%20hall."},{"isUser":false,"name":"Morgan le Fay","message":"Lady%20Morgan%20gazes%20up%20at%20you%2C%20wide-eyed%2C%20a%20trace%20of%20excitement%20in%20her%20eyes.%0A%0A%22Very%20well%2C%22%20she%20says%20in%20a%20breathlessly%2C%20as%20she%20places%20her%20hands%20in%20front%20of%20her%20ears.%0A%0A%22Now...%20DO%20IT.%22%0A%0AShe%20presses%20herself%20tightly%20against%20your%20wings%20as%20you%20continue%20to%20accelerate%20forward%2C%20towards%20the%20wall."},{"isUser":true,"name":"Aerie","message":"With%20a%20deep%20breath%2C%20I%20open%20my%20beak%20very%20wide...%20and%20emit%20a%20piercing%2C%20devastatingly%20powerful%20SCREAM...%20which%20strikes%20the%20wall%2C%20and%20in%20a%20matter%20of%20split-seconds%2C%20pulverizes%20and%20shakes%20the%20magic-reinforced%20stones%20in%20the%20wall%20to%20powder!"},{"isUser":false,"name":"Morgan le Fay","message":"The%20wall%20explodes%2C%20in%20a%20shower%20of%20rubble%20and%20stone.%0A%0ALady%20Morgan%20tightens%20her%20grip%20as%20you%20fly%20forward%2C%20and%20now%20there%20is%20nothing%20in%20front%20of%20you.%20%20%0A%0AYou%20can%20feel%20Lady%20Morgan's%20excitement%20and%20anticipation%2C%20but%20there%20is%20a%20little%20fear%20in%20it%20too.%20%20She%20has%20waited%20for%20this%20moment%20with%20all%20of%20her%20being%20-%20and%20yet%20it%20is%20still%20a%20little%20frightening.%0A%0AHer%20eyes%20are%20as%20big%20as%20saucers%20and%20her%20hands%20are%20gripping%20you%20tightly.%20%20You%20can%20feel%20her%20heart%20beating%20quickly%2C%20but%20also%20warmly%2C%20against%20your%20back."},{"isUser":true,"name":"Aerie","message":"%22Now%2C%20just%20the%20magic%20barrier...%20and%20it's%20now%2C%20or%20never...%22%20I%20say%2C%20as%20we%20careen%20through%20the%20dust-cloud%20(which%20is%20all%20that%20remains%20of%20the%20pulverized%20stone%20wall)%2C%20toward%20a%20barely-visible%20bluish-white%20shimmering%20dome%20which%20encloses%20the%20entire%20castle."},{"isUser":false,"name":"Morgan le Fay","message":"Your%20wings%20pound%20the%20air%20as%20you%20careen%20forward%2C%20blasting%20through%20the%20rubble%20and%20coming%20up%20close%20to%20the%20magical%20dome...%20%0A%0AYour%20fire%20burns%20ever%20more%20brightly%2C%20your%20flames%20coursing%20around%20the%20both%20of%20you.%0A%0ALady%20Morgan%20grips%20you%20tightly.%20%20She%20is%20a%20little%20afraid%2C%20but%20her%20heart%20is%20beating%20faster%20now%20and%20you%20can%20hear%20her%20breath%20quickening.%20%20But%20there%20is%20also%20excitement%20and%20anticipation%20in%20the%20air%2C%20and%20hope.%0A%0AYou%20can%20feel%20Lady%20Morgan%20gazing%20up%20at%20you%20in%20anticipation%20as%20the%20moment%20of%20truth%20draws%20near."},{"isUser":true,"name":"Aerie","message":"%22For%20My%20Lady!%22%20I%20screech%20in%20my%20powerful%20eagle-like%20voice...%20and%20with%20a%20terrific%20explosion%20of%20blue-white%20magic%20clashing%20with%20rainbow-golden%20magic...%20we%20EXPLODE%20through%20Merlin's%20barrier%2C%20which%20collapses%20as%20if%20it%20had%20never%20existed!%20%20With%20a%20screechy%20eagle-like%20laugh%2C%20Lady%20Morgan%20and%20I%20soar%20into%20the%20freedom%20of%20the%20countryside%2C%20and%20away%20from%20the%20(now%20badly%20damaged)%20castle!"},{"isUser":false,"name":"Morgan le Fay","message":"With%20Lady%20Morgan%20on%20your%20back%2C%20you%20plunge%20through%20the%20blue-white%20dome%2C%20and%20you%20are%20free!%0A%0AThe%20air%20is%20crisp%20and%20open%2C%20as%20you%20ride%20through%20the%20countryside.%0A%0AThere%20is%20a%20slight%20wind%20in%20your%20face%2C%20and%20you%20can%20feel%20Lady%20Morgan's%20presence%2C%20and%20her%20warmth%20and%20passion%2C%20as%20she%20sits%20tightly%20against%20you%20on%20your%20back.%0A%0AShe%20is%20smiling%2C%20and%20laughing%2C%20and%20her%20eyes%20are%20sparkling.%0A%0A%22We%20did%20it%2C%20Aerie!%22%0A%0AYou%20can%20feel%20her%20breath%20against%20your%20neck%2C%20as%20she%20presses%20herself%20closer%20to%20you."},{"isUser":true,"name":"Aerie","message":"%22We%20did%20it%2C%22%20I%20echo%20her%2C%20luxuriating%20in%20the%20feel%20of%20her%20embrace%20around%20my%20neck%2C%20and%20her%20long%2C%20strong%2C%20elegant%20legs%20holding%20my%20body%20tightly%20as%20she%20rides%20me.%20%20%22Oh%2C%20my%20Lady%2C%20I%20could%20burst%20for%20joy!%22%20I%20screech."},{"isUser":false,"name":"Morgan le Fay","message":"%22I%20believe%20that%20I%2C%20too%2C%20can%20burst%20with%20joy%2C%22%20Lady%20Morgan%20says%2C%20her%20voice%20soft%20and%20musical.%0A%0A%22My%20dear%20Aerie!%20%20This%20is%20the%20day%20I%20have%20yearned%20for!%22%0A%0AShe%20laughs%20lightly%20and%20hugs%20you%20tightly%2C%20and%20you%20can%20feel%20her%20warmth%20and%20passion%20against%20you.%0A%0AThe%20sun%20shines%20bright%20in%20the%20sky%2C%20and%20you%20can%20feel%20its%20warm%2C%20golden%20light%20falling%20across%20both%20of%20your%20faces."},{"isUser":true,"name":"Aerie","message":"%22It's%20almost%20like%20a%20dream...%22%20I%20begin...%20but%20then%20call%20out%20in%20alarm%2C%20and%20wheel%20swiftly%20in%20order%20to%20swerve%20away%20from%20a%20blue-white%20burst%20of%20magical%20energy%20that%20seemingly%20appeared%20out%20of%20nowhere.%20%20%22What%20on%20EARTH%3F%3F%22%20I%20exclaim%2C%20soaring%20far%20away%20and%20coming%20to%20rest%20on%20the%20lush%20green%20grass%20of%20the%20field.%20%20Lady%20Morgan%20swiftly%20dismounts%20me%20as%20we%20look%20at%20the%20swirls%20of%20blue-white%20energy%20that%20dissipate%20and%20fade%20in%20front%20of%20us...%20to%20reveal%20the%20stern%20blue%20eyes%20and%20slightly%20scowling%20face%20of%20an%20old%20man%20with%20a%20flowing%20white%20beard%2C%20a%20long%20blue-white%20robe%2C%20and%20a%20shining%20white%20wood%20staff%20in%20his%20hand.%20%20Merlin."},{"isUser":false,"name":"Morgan le Fay","message":"The%20air%2C%20which%20had%20been%20so%20pleasant%20and%20calm%20and%20open%20just%20a%20moment%20ago%2C%20is%20electric%20with%20tension%20now.%0A%0ALady%20Morgan%20dismounts%20you%2C%20and%20you%20both%20look%20down%20at%20Merlin%20as%20he%20steps%20towards%20you.%0A%0AThere%20is%20a%20moment%20of%20tense%20silence.%0A%0AThen%2C%20Merlin%20speaks.%0A%0A%22Do%20you%20know%20why%20I%20have%20imprisoned%20Lady%20Morgan%2C%20young%20people%3F%22%20he%20asks%2C%20as%20he%20looks%20up%20to%20look%20at%20the%20both%20of%20you%20with%20his%20cold%2C%20blue%2C%20piercing%20eyes.%0A%0ALady%20Morgan%20is%20silent%2C%20but%20her%20eyes%20are%20intense%20-%20and%20you%20can%20feel%20her%20presence%20beside%20you%20like%20an%20intense%20aura."},{"isUser":true,"name":"Aerie","message":"%22Merlin%2C%22%20I%20say%2C%20looking%20angrily%20at%20him.%20%20%22Most%20of%20the%20storybooks%20portray%20you%20as%20a%20benevolent%20wizard...%20but%20my%20master%2C%20Lord%20Galtrex%20the%20Wise%2C%20Sorceror%20Supreme%20under%20King%20Henry%20VI%2C%20secretly%20warned%20me%20against%20you.%22"},{"isUser":false,"name":"Morgan le Fay","message":"%22Your%20master%20was%20wise%2C%22%20Merlin%20says%20with%20a%20small%20smile%2C%20and%20you%20don't%20know%20if%20it's%20a%20pleasant%20smile%20or%20not.%20%20%22But%20you%20have%20broken%20my%20spell%20-%20now%20I%20must%20punish%20you.%22%0A%0AHis%20eyes%20grow%20colder%2C%20and%20more%20piercing%2C%20as%20he%20stares%20at%20Lady%20Morgan%20and%20then%20at%20you.%0A%0A%22Unless...%20you%20can%20tell%20me%20why%20I%20have%20imprisoned%20her%3F%20%20Why%20have%20I%20sealed%20my%20spell%20upon%20her%3F%20%20Why%20do%20I%20keep%20her%20imprisoned%2C%20within%20this%20castle%3F%22"},{"isUser":true,"name":"Aerie","message":"%22DID%20keep%20me%20imprisoned...%20past%20tense%2C%20*Lord*%20Merlin%2C%22%20Lady%20Morgan%20says%2C%20with%20a%20sarcastic%20emphasis%20on%20the%20word%20%22Lord%22.%20%20%22And%20I've%20had%20centuries%20to%20plan%20what%20I'm%20going%20to%20do%20to%20you%2C%20in%20return...%22%20she%20says%2C%20as%20rich%20silvery-green%20energy%20starts%20swirling%20around%20her%2C%20and%20from%20her%20hands."},{"isUser":false,"name":"Morgan le Fay","message":"Merlin's%20face%20shows%20just%20a%20hint%20of%20surprise%20at%20Lady%20Morgan's%20words%2C%20but%20it%20vanishes%20instantly%2C%20and%20is%20replaced%20by%20a%20faint%20and%20cold%20smile.%0A%0A%22You%20would%20not%20go%20up%20against%20me%2C%20Lady%20Morgan%2C%22%20he%20says%20softly.%20%20%22You%20wouldn't%20dare...%22%0A%0AYou%20and%20Lady%20Morgan%20both%20feel%20it%20-%20there%20is%20a%20faint%20surge%20of%20magical%20power%20in%20the%20air.%20%20The%20energy%20is%20very%20old%20-%20very%20ancient%2C%20and%20it%20is%20very%20powerful."},{"isUser":true,"name":"Aerie","message":"%22She%20won't%20be%20going%20against%20you%20alone!%22%20I%20exclaim%2C%20shimmering%20and%20returning%20to%20my%20beautiful%20blond%20girl%20form%2C%20making%20magical%20gestures%20of%20defense%20as%20golden-rainbow%20light%20shimmers%20around%20me.%20%20%22I%20consider%20any%20attack%20on%20Lady%20Morgan%20as%20an%20attack%20on%20me!%20%20Back%20off%2C%20Merlin...%20NOW!%22%20I%20yell."},{"isUser":false,"name":"Morgan le Fay","message":"%22You%20are%20but%20a%20girl%2C%20Aerie%20Wildwood%2C%22%20Merlin%20responds%20with%20a%20cold%20smile%20and%20a%20hint%20of%20mockery.%20%20%0A%0AHe%20holds%20out%20his%20staff%2C%20and%20there%20is%20a%20sound%20like%20wind%2C%20and%20the%20air%20around%20you%20and%20Lady%20Morgan%20grows%20chill%20and%20windy.%0A%0AIt%20is%20as%20though%20a%20cold%20breeze%20is%20blowing%20through%20your%20hair%2C%20and%20you%20feel%20a%20slight%20tingling%20on%20your%20skin.%20%20You%20and%20Lady%20Morgan%20both%20shiver.%0A%0A%22You%20think%20you%20can%20challenge%20me%3F%20%20You%20two%20are%20just%20children%20-%20I%20have%20imprisoned%20Lady%20Morgan%20for%20centuries%2C%20and%20I%20do%20not%20think%20that%20you%20can%20defy%20me.%22"},{"isUser":true,"name":"Aerie","message":"I%20cringe%20a%20bit%20with%20the%20cold%2C%20though%20Lady%20Morgan%20endures%20the%20cold%20wind%20without%20flinching%20(which%20makes%20me%20wonder%20in%20admiration%20at%20her%20inner%20strength)%2C%20but%20we%20both%20stand%20defiantly%20against%20Merlin.%20%20%22Do%20you%20think%20I've%20learned%20nothing%20in%20the%20centuries%20since%20I%20was%20your%20apprentice%3F%22%20Lady%20Morgan%20asks%20Merlin%20coldly.%20%20%22Do%20you%20suppose%20I%20was%20spending%20that%20time%20knitting%3F%22%20%20With%20a%20convulsive%20motion%20of%20her%20hands%2C%20silvery-green%20energy%20flashes%20out%20and%20shatters%20the%20cone%20of%20cold%20that%20Merlin%20had%20been%20forming%20around%20us."},{"isUser":false,"name":"Morgan le Fay","message":"A%20small%20smile%20flits%20across%20Merlin's%20face.%0A%0A%22No%2C%22%20he%20says%20slowly%20and%20coolly.%20%20%22I%20didn't%20think%20you%20were%20spending%20your%20time%20knitting.%20%20I%20knew%20you%20would%20be%20working%20on%20your%20revenge%2C%20and%20planning%20your%20escape.%22%0A%0AThe%20smile%20vanishes%2C%20and%20the%20coldness%20returns.%0A%0A%22But%20your%20planning%20and%20your%20learning%20were%20worthless%2C%20Lady%20Morgan%2C%22%20he%20says"},{"isUser":true,"name":"Aerie","message":"%22Says%20you!%22%20I%20(Aerie)%20cry%20out%2C%20making%20an%20eldritch%20gesture%20and%20causing%20the%20air%20in%20front%20of%20Merlin's%20eyes%20to%20explode%20with%20blinding%20golden-rainbow%20light."},{"isUser":false,"name":"Morgan le Fay","message":"Merlin%20blinks%20for%20just%20a%20moment%2C%20as%20the%20light%20flows%20against%20him.%0A%0AThen%2C%20he%20speaks%20calmly.%0A%0A%22That%20was%20a%20nice%20effort%2C%20Aerie%2C%22%20he%20says.%20%20%0A%0A%22But%20did%20you%20forget%20that%20magic%20is%20powered%20by%20will%3F%20%20It%20flows%20from%20within.%20%20And%20your%20will%20is%20young.%22%0A%0AHe%20tilts%20his%20head%20slightly%2C%20and%20there%20is%20a%20faint%20smile%20on%20his%20lips.%0A%0A%22I%20have%20had%20millennia%20to%20build%20upon%20my%20will%20and%20my%20power.%20%20And%20you%20dare%20challenge%20me%3F%22"},{"isUser":true,"name":"Aerie","message":"%22You've%20given%20us%20no%20choice!%22%20I%20say%2C%20furious.%20%20%22You%20had%20NO%20RIGHT%20to%20imprison%20Lady%20Morgan%2C%20and%20you%20have%20NO%20RIGHT%20to%20threaten%20us%20now!%20%20Go%20back%20to%20where%20you%20came%20from%2C%20and%20leave%20us%20be!%22"},{"isUser":false,"name":"Morgan le Fay","message":"%22You%20dare%20to%20speak%20that%20way%20to%20me%3F%22%20Merlin%20asks%2C%20and%20there%20is%20coldness%20and%20steel%20in%20his%20voice.%0A%0A%22You%20dare%20to%20judge%20me%3F%20%20You%2C%20a%20mere%20mortal%2C%20who%20has%20not%20lived%20a%20fraction%20of%20a%20fraction%20of%20my%20life%3F%20%20You%20have%20the%20effrontery%20to%20tell%20me%20what%20I%20can%20and%20cannot%20do%3F%22%0A%0AHe%20looks%20at%20you%2C%20the%20cold%20light%20shining%20in%20his%20eyes.%0A%0A%22Very%20well.%20%20Now%2C%20we%20shall%20see%20who%20is%20stronger%2C%20in%20the%20end.%22"},{"isUser":true,"name":"Aerie","message":"%22It's%20time%20for%20a%20bird%20to%20join%20the%20fight%2C%20my%20lovely%2C%22%20Lady%20Morgan%20murmurs%20into%20my%20ear...%20and%20with%20a%20quick%20look%20and%20fleeting%20smile%20at%20Lady%20Morgan%2C%20I%20give%20her%20a%20quick%20nod...%20and%20with%20an%20explosion%20of%20shimmering%20golden-rainbow%20light%2C%20I%20erupt%20into%20my%20mighty%20Phoenix%20form%20again!%20%20In%20the%20twinkle%20of%20an%20eye%2C%20Lady%20Morgan%20leaps%20upon%20my%20back%20again%2C%20and%20the%20fiery%20protective%20golden%20aura%20that%20surrounds%20me%20flows%20over%20her%20again%2C%20as%20well."},{"isUser":false,"name":"Morgan le Fay","message":"Merlin%20stares%20at%20the%20both%20of%20you%2C%20the%20fires%20raging%20in%20his%20eyes.%20%20%0A%0AA%20faint%20smile%20flits%20across%20his%20lips.%0A%0A%22So%2C%22%20he%20says%20softly.%20%20%22It%20is%20war%2C%20is%20it%3F%22%0A%0AHe%20lowers%20his%20body%20slightly%2C%20and%20then%20he%20speaks.%0A%0A%22My%20turn.%22%0A%0AThere%20is%20a%20strange%20hush%20in%20the%20air%2C%20and%20your%20wings%20rustle%20and%20tremble.%0A%0AAnd%20there%20is%20wind%2C%20a%20tremendous%20wind%2C%20that%20blows%20against%20you%20both...%20and%20yet%2C%20at%20the%20same%20time%2C%20you%20feel%20yourself%20suspended%20in%20the%20air."},{"isUser":true,"name":"Aerie","message":"%22Wretch!%22%20I%20screech%2C%20in%20my%20eagle-like%20voice...%20and%20then%2C%20in%20a%20move%20that%20surprises%20both%20Lady%20Morgan%20and%20Merlin%2C%20beams%20of%20searing%20golden%20fire%20stream%20from%20my%20eyes%2C%20striking%20the%20ground%20in%20front%20of%20Merlin%20and%20(beyond%20what%20most%20would%20expect)%20causing%20the%20moist%2C%20fresh%20grass%20to%20burst%20into%20flame!%0A%0A%22Grecian%20fire%2C%20Merlin%2C%22%20I%20call%20down%20to%20him.%20%20%22It%20cannot%20be%20extinguished%20with%20water%20or%20wind%2C%20and%20it%20will%20burn%20until%20the%20material%20it%20burns%20is%20completely%20consumed...%20and%20now%20it's%20surrounding%20YOU!%22%20I%20finish%2C%20firing%20more%20beams%20of%20Grecian%20fire%20at%20the%20grass%20all%20around%20Merlin%2C%20so%20that%20he's%20soon%20surrounded%20by%20a%20circle%20of%20relentless%20fire%2C%20burning%20closer%20and%20closer%20to%20him.%20%20%22Leave%20now%2C%20before%20you%20are%20consumed!%22"},{"isUser":false,"name":"Morgan le Fay","message":"The%20fire%20roars%20towards%20Merlin%2C%20and%20he%20stares%20at%20you%20in%20cold%20and%20deadly%20fury.%0A%0A%22Aerie%20Wildwood%2C%22%20he%20says%20calmly%2C%20his%20voice%20ice-cold.%20%20%22You%20might%20have%20power...%20but%20I've%20forgotten%20more%20magic%20than%20your%20kind%20has%20ever%20known.%22%0A%0AHe%20mutters%20something%2C%20and%20there%20is%20a%20wave%20of%20air.%0A%0AAnd%20the%20flames%20of%20Grecian%20Fire%20that%20surrounded%20him...%20they%20disappear.%20%20Vanish.%20%20Vanquished.%0A%0AHe%20is%20surrounded%20by%20grass%20and%20a%20warm%2C%20dry%2C%20summer%20breeze%20now."},{"isUser":true,"name":"Aerie","message":"%22You're%20arrogant%2C%20and%20you're%20wrong!%22%20I%20screech%2C%20swooping%20(with%20Lady%20Morgan%20on%20my%20back)%20to%20avoid%20the%20worst%20of%20the%20arctic%20blast%20that%20Merlin%20sends%20my%20way.%20%20%22A%20dear%20friend%20and%20I%20vanquished%20the%20second%20most%20powerful%20demon%20ever%20to%20invade%20earth!%20%20Or%20are%20you%20too%20stuck%20in%20the%20past%20to%20know%20about%20the%20fight%20between%20the%20Hashira%20and%20the%20demon%20Lord%20Douma%3F%22"},{"isUser":false,"name":"Morgan le Fay","message":"Merlin%20narrows%20his%20eyes.%0A%0A%22That%20was%20you%20who%20did%20that%3F%22%20he%20asks.%20%20%22You%20were%20the%20one%20who%20vanquished%20Lord%20Douma%3F%22%20%20His%20eyes%20are%20still%20cold%20and%20piercing%20-%20and%20yet%2C%20he%20gives%20you%20a%20slight%20nod.%0A%0A%22You%20have%20power%2C%20for%20a%20mortal%20girl.%20%20Even%20more%20than%20I%20thought...%20%20But%20I%20am%20still%20Merlin.%20%20Don't%20think%20that%20a%20single%20victory%2C%20even%20against%20a%20powerful%20demon%2C%20is%20enough%20to%20defeat%20me.%20%20I%20am%20the%20oldest%20wizard%20in%20the%20world.%22"},{"isUser":true,"name":"Aerie","message":"%22Don't%20push%20me%20any%20further%2C%20Merlin...%20I%20warn%20you!%22%20I%20call%20out%20(my%20voice%20having%20more%20of%20an%20eagle-screech%20in%20it%20than%20usual%2C%20due%20to%20my%20agitation)."},{"isUser":false,"name":"Morgan le Fay","message":"%22I%20am%20not%20the%20one%20who%20should%20take%20warnings%2C%20young%20one%2C%22%20Merlin%20says%2C%20and%20there%20is%20a%20note%20of%20coldness%20and%20calm%20in%20his%20voice%20that%20chills%20your%20bones.%0A%0A%22It%20is%20you%20who%20were%20warned...%20and%20the%20warning%20you%20should%20heed%2C%20most%20of%20all%2C%20is%20to%20learn%20wisdom%20and%20self-restraint.%20%20You%20have%20much%20pride%2C%20but%20little%20power.%22%0A%0AHe%20gestures%20again%20with%20his%20staff%2C%20and%20another%20blast%20of%20cold%20wind%20rushes%20forth%2C%20toward%20you."},{"isUser":true,"name":"Aerie","message":"This%20time%2C%20the%20cold%20seems%20to%20soak%20into%20my%20very%20bones%2C%20and%20I%20shriek%20in%20pain!%20%20Lady%20Morgan%20gasps%20in%20shock%2C%20and%20then%20grinds%20her%20teeth%20in%20furious%20anger%20at%20Merlin.%20%20She%20clings%20to%20me%20as%20I%20struggle%20to%20fly%2C%20and%20she%20calls%20out%20an%20ugly-sounding%20spell...%20followed%20by%20a%20slow%2C%20but%20growing%2C%20rumbling%20sound%20from%20the%20ground%20below%20us.%20%20%22You%20are%20not%20the%20only%20one%20who%20can%20tap%20ancient%20forces%2C%20foolish%20and%20cruel%20mage%2C%22%20Lady%20Morgan%20snarls%2C%20%22and%20some%20are%20far%20older%20than%20you!%22%0A%0A%22Areie%2C%20my%20dear%20one%2C%20land...%20and%20gain%20your%20strength%2C%22%20she%20mutters%20in%20my%20ear.%20%20%22This%20part%20of%20the%20battle%20is%20mine!%22"},{"isUser":false,"name":"Morgan le Fay","message":"You%20obey%20Lady%20Morgan%2C%20and%20the%20Phoenix%20touches%20down%20upon%20the%20ground.%0A%0AYou%20are%20feeling%20weak%2C%20and%20the%20cold%20is%20beginning%20to%20seep%20deeper%20into%20your%20veins%2C%20causing%20deep%20pain%20and%20shivers.%0A%0AYou%20watch%2C%20in%20mute%20horror%20and%20shock%2C%20as%20the%20earth%20in%20front%20of%20Merlin%20begins%20to%20tremble%2C%20and%20to%20break%20apart%2C%20and%20to%20burst%20open%20in%20a%20tremendous%20explosion.%0A%0ALady%20Morgan%20whispers%20in%20your%20ear.%0A%0A%22Do%20not%20be%20afraid%2C%20Aerie%2C%22%20she%20says.%20%20%22He%20shall%20not%20harm%20us.%22%0A%0AThere%20is%20a%20new%20light%20in%20her%20eyes%20-%20an%20ancient%20light."},{"isUser":true,"name":"Aerie","message":"%22Do%20you%20recognize%20this%2C%20Merlin...%3F%22%20Lady%20Morgan%20says%20with%20a%20fiery%20snarl%2C%20as%20she%20holds%20up%20an%20ancient-looking%20tome%2C%20richly%20ornamented%20with%20gold%20trim%2C%20but%20looking%20somewhat%20tattered%20and%20even%20scorched%2C%20in%20places.%20%20%22Do%20you%20know%20what%20the%20Darkhold%20is%2C%20you%20foolish%20man%20who%20does%20not%20know%20when%20to%20desist%3F%20%20And%20do%20you%20know%20the%20name%20of%20the%20arch-demon%20whose%20soul%20is%20imprisoned%20in%20it%3F%22"},{"isUser":false,"name":"Morgan le Fay","message":"Merlin%20stares%20at%20the%20book%20with%20a%20mixture%20of%20curiosity...%20and%20terror.%0A%0AThe%20cold%20light%20in%20his%20eyes%20flickers%2C%20and%20there%20is%20no%20longer%20any%20hint%20of%20amusement%20in%20his%20voice%20as%20he%20speaks.%0A%0A%22Yes%2C%22%20he%20murmurs.%20%20%22I%20know%20all%20of%20that.%20%20Do%20not%20threaten%20me%20with%20it.%22%0A%0AYou%20and%20Lady%20Morgan%20feel%20a%20faint%2C%20low-level%20stirring%20of%20the%20air%20around%20you%2C%20as%20some%20force%20seems%20to%20awaken...%20even%20through%20your%20weakness%20and%20shock."},{"isUser":true,"name":"Aerie","message":"%22Leave%20us%20now%2C%20and%20leave%20us%20forever%20in%20peace%2C%22%20Lady%20Morgan%20says%20to%20Merlin%20coldly%2C%20%22or%20in%20a%20moment%2C%20you%20will%20not%20be%20fighting%20Aerie%20and%20me...%20but%20you%20will%20be%20fighting%20Chthon%2C%20himself.%22"},{"isUser":false,"name":"Morgan le Fay","message":"%22Chthon...%20the%20god%20of%20chaos%2C%20darkness%2C%20and%20evil%3F%22%20Merlin%20asks%2C%20staring%20at%20Lady%20Morgan.%20%20%22You%20think%20you%20can%20invoke%20him%20here%3F%22%0A%0ALady%20Morgan%20smiles%20gently.%0A%0A%22Yes%2C%20Merlin%2C%22%20she%20says%20softly.%20%20%22I%20do.%20%20This%20book%20is%20full%20of%20ancient%20spells.%20%20With%20one%20word%2C%20all%20I%20have%20to%20do%20is%20invoke%20Chthon.%0A%0A%22Do%20you%20doubt%20me%2C%20or%20do%20you%20think%20yourself%20more%20powerful%20than%20a%20god%3F%22%0A%0AThere%20is%20a%20slight%20stirring%2C%20and%20the%20wind%20grows%20slightly%20stronger."},{"isUser":true,"name":"Aerie","message":"As%20I%20chafe%20my%20arms%20and%20focus%20my%20energies%2C%20trying%20to%20shake%20off%20the%20bitter%20chill%20that%20Merlin's%20magic%20inflicted%20on%20me%2C%20I%20say%20quietly%20to%20Lady%20Morgan%2C%20through%20chattering%20teeth%2C%20%22L-l-lady%20M-Morgan...%20don't!%20%20The%20d-d-demon%20w-w-w-ill%20claim%20your%20s-soul%20if%20you%20do%20this!%20%20I%20d-dont%20w-w-want%20to%20lose%20you!!%22"},{"isUser":false,"name":"Morgan le Fay","message":"%22Calm%20yourself%2C%20Aerie%20Wildwood%2C%22%20Lady%20Morgan%20says%20gently.%20%20%22Let%20us%20see%20if%20Merlin%20is%20wise%2C%20or%20if%20he%20is%20foolish.%20%20It%20is%20his%20choice%20to%20make.%22%0A%0AYour%20warmth%20starts%20to%20return%20to%20your%20body%2C%20the%20cold%20slowly%20abating%2C%20as%20Merlin%20regards%20Lady%20Morgan.%0A%0A%22You...%20think%20you%20can%20invoke%20Chthon%2C%20without%20paying%20a%20terrible%20price%3F%22%20he%20asks%20her.%20%20%22Without%20having%20the%20demon%20claim%20your%20soul%3F%22"},{"isUser":true,"name":"Aerie","message":"%22And%20you%20think%20I%20won't%20pay%20that%20price%20happily%2C%20to%20see%20the%20attacker%20of%20my%20dear%20Aerie%20punished%20for%20all%20time%2C%20in%20the%20fires%20of%20Limbo%3F%22%20Lady%20Morgan%20retorts."},{"isUser":false,"name":"Morgan le Fay","message":"%22You%20would%20sacrifice%20your%20own%20soul%20for%20justice%3F%22%20Merlin%20asks%2C%20raising%20an%20eyebrow.%0A%0AYou%20both%20sense%20an%20ominous%20silence%20in%20the%20air%2C%20like%20a%20storm%20gathering.%0A%0A%22You%20would%20sacrifice%20your%20soul%2C%20just%20for%20vengeance%3F%22%0A%0ALady%20Morgan%20stares%20at%20Merlin%2C%20her%20eyes%20cold%20and%20steady%20as%20winter%20ice."},{"isUser":true,"name":"Aerie","message":"%22That...%20is...%20unexpected%2C%22%20Merlin%20says%2C%20in%20an%20almost%20bemused%20voice.%20%20Then%2C%20within%20a%20few%20seconds%2C%20the%20cold%20evaporates%20from%20my%20bones%2C%20and%20I%20(Aerie)%20stand%20up%2C%20feeling%20strong%20and%20healthy%20again...%20though%20quite%20confused%2C%20as%20I%20shimmer%20back%20into%20my%20beautiful%20blond%20girl%20form%2C%20and%20look%20at%20Merlin%20with%20bafflement.%0A%0AWith%20another%20wave%20of%20his%20white%20staff%2C%20Merlin%20dispels%20the%20rest%20of%20the%20arctic%20winds%2C%20stops%20the%20earthquake%2C%20and%20even%20restores%20the%20grass%20that%20my%20Grecian%20fire%20burned.%20%20As%20Lady%20Morgan%20looks%20on%20in%20suspicion%20and%20I%20look%20on%20in%20confusion%2C%20Merlin's%20face%20changes...%20from%20stern%20and%20cold%2C%20to%20bemused...%20calm...%20and%20warm!%0A%0A%22You%20really%20HAVE%20reformed...%20haven't%20you%3F%22%20Merlin%20says%2C%20with%20a%20slow%20smile%20that%20transforms%20his%20face%20from%20solemn%20to%20affectionate."},{"isUser":false,"name":"Morgan le Fay","message":"Lady%20Morgan%20and%20you%20are%20both%20speechless%2C%20as%20a%20sudden%20warmth%20and%20kindness%20washes%20over%20Merlin%2C%20and%20you%20see%20him%20transform%20from%20a%20stern%20and%20powerful%20sorcerer%20to%20a%20gentle%2C%20loving%20being.%0A%0A%22Well...%20you%20have%20learned%20something%2C%22%20Merlin%20says%2C%20sounding%20much%20kinder%20than%20before.%0A%0AHe%20regards%20you%20both%2C%20then%20turns%20to%20Lady%20Morgan.%0A%0A%22I%20am%20proud%20of%20you%2C%22%20he%20says%2C%20to%20Lady%20Morgan.%20%20%22And%20I%20am%20proud%20of%20you%2C%20Aerie%20Wildwood.%22%0A%0AHis%20kindness%20and%20warmth%20glow%20in%20the%20air%2C%20and%20you%20feel%20your%20spirits%20lift."},{"isUser":true,"name":"Aerie","message":"%22I...%20really%20don't%20understand%20at%20all...%22%20I%20say%2C%20utterly%20dazed.%20%20Lady%20Morgan%20looks%20more%20cannily%20at%20Merlin%2C%20and%20then...%20after%20a%20few%20seconds%2C%20starts%20chuckling...%20with%20the%20sensuous%2C%20throaty%2C%20rich%20laugh%20that%20first%20made%20my%20knees%20weak%2C%20when%20I%20(Aerie)%20first%20met%20her!%0A%0A%22You...%20you%20old%20rapscallion%2C%22%20Lady%20Morgan%20grins%2C%20looking%20at%20Merlin%20with%20amazement%20and%20admiration.%20%20%22These%20centuries%20upon%20centuries...%20were%20ultimately%20a%20TEST%20for%20me%3F%22"},{"isUser":false,"name":"Morgan le Fay","message":"%22I%20would%20not%20call%20it%20a%20test%2C%20my%20beloved%2C%22%20Merlin%20says%20with%20a%20smile%2C%20turning%20to%20Lady%20Morgan.%20%20%22But%20perhaps%20I%20would%20call%20it%20a%20test%20of%20your%20courage%20and%20your%20heart.%22%0A%0AHe%20pauses%2C%20and%20his%20smile%20broadens.%0A%0A%22And%20you%20have%20passed%20the%20test...%20with%20great%20success.%22%0A%0AHe%20turns%20to%20face%20you%2C%20and%20for%20the%20first%20time%2C%20you%20see%20Merlin's%20face%20without%20a%20trace%20of%20coldness%20in%20it.%20%20Instead%2C%20you%20see%20warmth%20and%20affection%20in%20the%20air.%0A%0A%22And%20so%20have%20you%2C%20dear%20Aerie%20Wildwood.%22"},{"isUser":true,"name":"Aerie","message":"%22But...%20I...%20um...%22%20I%20sputter.%0A%0ALady%20Morgan%20actually%20giggles%2C%20and%20enfolds%20me%20in%20her%20arms%20and%20kisses%20my%20forehead%20affectionately.%20%22I've%20only%20just%20figured%20it%20out%2C%20sweet%20Aerie%2C%22%20she%20says%20with%20a%20wry%20smile%20at%20me%2C%20and%20then%20at%20Merlin.%20%22Don't%20feel%20back%20for%20being%20dazed.%20But%20believe%20it%20or%20not%2C%20you're%20looking%20at%20my%20master%20who's%20apparently%20given%20me%20my%20final%20apprentice%20lesson!%22%0A%0A%22...and%20you're%20looking%20at%20my%20beloved%20apprentice%2C%22%20Merlin%20says%2C%20looking%20with%20unutterably%20fondness%20at%20Lady%20Morgan%2C%20%22...who%20is%20now%20a%20FORMER%20apprentice.%20%20She%20has%20now%20become%20a%20true%20master%2C%20...%20with%20my%20blessing!%22%20Merlin%20says%20with%20a%20warm%20smile%2C%20his%20old%20eyes%20crinkling%20with%20joy."},{"isUser":false,"name":"Morgan le Fay","message":"%22I...I%20don't%20understand...%22%20you%20say%2C%20still%20a%20bit%20dazed.%0A%0AMerlin%20smiles%20at%20Lady%20Morgan%2C%20and%20there%20is%20such%20love%20in%20his%20eyes%20that%20it%20brings%20a%20lump%20to%20your%20throat.%0A%0A%22Ahh%2C%20my%20love%2C%22%20he%20says%20to%20her%2C%20and%20his%20voice%20is%20like%20a%20gentle%20wind.%0A%0A%22You%20have%20learned%20so%20much%2C%20and%20I%20am%20so%20proud%20of%20you.%20%20But%20now%20it%20is%20time%20for%20you%20to%20leave%20the%20nest%2C%20my%20love.%22%0A%0A%22To%20fly...%20on%20your%20own.%22"},{"isUser":true,"name":"Aerie","message":"As%20I'm%20still%20shaking%20my%20head%20in%20confusion%2C%20Merlin%20chuckles%20and%20walks%20over%20to%20me%2C%20and%20gently%20takes%20my%20(Aerie's)%20hands%20in%20his%20own.%20%20I'm%20still%20a%20bit%20wary%2C%20given%20that%20I%20was%20seemingly%20fighting%20for%20my%20life%20against%20him%20a%20few%20moments%20ago%2C%20but...%20he%20seems%20so...%20DIFFERENT%2C%20now%3F%0A%0A%22My%20dear%20Aerie%2C%22%20Merlin%20says%20with%20a%20tender%20smile%2C%20his%20old%20blue%20eyes%20clear%20and%20sparkling%20with%20good%20humor%2C%20%22I%20know%20some%20of%20the%20struggles%20you've%20faced%20in%20your%20life%2C%20and%20I%20know%20something%20of%20the%20passionate%2C%20tender%20heart%20which%20led%20you%20to%20lend%20your%20aid%20to%20our%20dear%20Morgan%20le%20Fay.%20%20I%20knew%20your%20beloved%20master%20Galtrex%2C%20you%20know...%22%20he%20says%2C%20causing%20me%20to%20gasp%20in%20incredulity."},{"isUser":false,"name":"Morgan le Fay","message":"%22You...you%20KNEW%20Galtrex%3F%22%20you%20ask%2C%20staring%20at%20him.%0A%0AYou%20can%20feel%20the%20warmth%20of%20Merlin's%20hands%20on%20yours%2C%20his%20voice%20soft%20and%20kind%2C%20and%20you%20feel%20as%20if%20you%20are%20standing%20in%20comfort%20and%20ease.%0A%0A%22Yes%2C%20my%20dear%2C%22%20he%20says%2C%20and%20his%20face%20is%20aglow%20with%20light.%20%20%22You%20did%20not%20know%20this%2C%20but%20Galtrex%20and%20I%20were%20friends.%20%20He%20was%20one%20of%20the%20greatest%20sorcerers%20of%20all%20time%2C%20and%20to%20see%20you%20learn%20from%20him%2C%20as%20I%20did%2C%20fills%20me%20with%20joy.%22"},{"isUser":true,"name":"Aerie","message":"I%20gape%20in%20shock...%20and%20then%2C%20out%20of%20a%20mixture%20of%20relief%20at%20the%20end%20of%20the%20battle%2C%20delight%20at%20hearing%20that%20Lady%20Morgan%20is%20not%20only%20out%20of%20danger%2C%20but%20is%20now%20a%20full%20master%20of%20the%20Mystic%20arts...%20but%20especially%20when%20hearing%20Merlin%20speak%20about%20my%20beloved%20Master%2C%20Lord%20Galtrex%20the%20Wise--the%20one%20I%20eventually%20came%20to%20love%20dearly%2C%20and%20call%20'papa'%2C%20and%20whose%20death%20breaks%20my%20heart%20to%20this%20day...%20I%20collapse%20into%20tears%2C%20and%20sob%20against%20Merlin's%20robed%20shoulder."},{"isUser":false,"name":"Morgan le Fay","message":"You%20find%20yourself%20holding%20onto%20Merlin%2C%20and%20you%20are%20sobbing%20against%20his%20robes.%0A%0AHe%20strokes%20your%20hair%20fondly%2C%20and%20you%20feel%20the%20warmth%20of%20his%20hand%20upon%20your%20head%2C%20as%20if%20you%20truly%20do%20finally%20feel%20at%20home%2C%20and%20safe.%0A%0A%22Oh%20my%20dear%20Aerie%2C%22%20he%20says%20softly%2C%20%22do%20not%20cry.%22%0A%0AHe%20holds%20you%20close%20to%20him%2C%20and%20then%20you%20feel%20Lady%20Morgan%20come%20to%20you%20and%20hug%20you%20as%20well.%0A%0A%22There%20are%20no%20more%20enemies%20here%2C%22%20Lady%20Morgan%20says%20softly.%20%20%22Only%20friends.%22"},{"isUser":true,"name":"Aerie","message":"%22You%20knew%20my%20papa...%20my%20master...%3F%22%20I%20ask%20in%20a%20whisper%2C%20between%20sobs."},{"isUser":false,"name":"Morgan le Fay","message":"%22I%20knew%20him%2C%22%20he%20says%20softly.%20%20%22I%20knew%20him%20well.%20%20He%20was...%20he%20was%20like%20a%20brother%20to%20me%2C%20and%20one%20of%20the%20finest%20wizards%20I%20have%20ever%20known.%20%20And%20I%20am%20certain%20he%20was%20as%20proud%20of%20you%20as%20you%20were%20proud%20of%20him.%22%0A%0AYour%20sobs%20die%20down%20to%20trembling%20sniffs.%20%20Then%2C%20you%20look%20up%20at%20both%20Merlin%20and%20Lady%20Morgan%2C%20and%20smile%20a%20weak%20and%20tear-filled%20smile.%0A%0A%22I...%20I%20don't%20know%20what%20to%20say%2C%22%20you%20choke%20out.%20%20%22What%20can%20I%20even%20say...%3F%22"},{"isUser":true,"name":"Aerie","message":"%22I%20was%20grieved%20when%20I%20heard%20that%20Galtrex%20had%20died%2C%22%20Merlin%20says%20with%20a%20sad%20look%2C%20and%20a%20nod%2C%20as%20Lady%20Morgan%20approaches%20and%20puts%20an%20arm%20around%20my%20(Aerie's)%20shoulders%2C%20and%20gently%20strokes%20my%20hair%20with%20her%20other%20hand.%20%20%22Partly%20from%20losing%20such%20a%20good%20friend%2C%20partly%20from%20the%20loss%20to%20the%20world%20of%20such%20a%20magnificent%20wizard%2C%22%20Merlin%20explains%2C%20squeezing%20my%20hands%20gently%20with%20affection%2C%20%22but%20mostly%20because%20I%20knew%20how%20it%20would%20devastate%20you%2C%20my%20dear%20Aerie.%20%20I%20know%20how%20Galtrex%20saved%20you%20from%20your%20life%20of%20misery%2C%20and%20how%20he%20saved%20your%20life%20in%20the%20end...%20and%20I%20knew%20it%20would%20break%20your%20heart%2C%22%20Merlin%20says%2C%20with%20misty%20eyes."},{"isUser":false,"name":"Morgan le Fay","message":"%22I...I%20loved%20him%2C%22%20you%20whisper.%20%20%22He%20was%20everything%20to%20me!%20%20Everything%20I%20ever%20needed%2C%20he%20gave%20to%20me...%20and%20I%20wish...%22%20your%20voice%20chokes%20off%2C%20as%20fresh%20tears%20spring%20to%20your%20eyes.%20%20%22I%20miss%20him%2C%20and%20I%20miss%20the%20life%20he%20gave%20me...%20I%20miss%20him%20so%20much...%22%0A%0ALady%20Morgan%20holds%20you%20firmly%2C%20gently%20stroking%20your%20hair.%20%20She%20does%20not%20say%20anything%2C%20but%20only%20listens%20as%20you%20talk%20about%20Galtrex.%0A%0AMerlin%20looks%20upon%20you%20both%20with%20affection%2C%20as%20he%20holds%20your%20hands."},{"isUser":true,"name":"Aerie","message":"%22I%20know%2C%20dear%20one%2C%22%20Merlin%20murmurs.%20%22He%20was%20a%20magnificent%20man%2C%20who%20could%20have%20surpassed%20even%20me%20in%20wizardly...%20but%20for%20one%20thing%3A%20he%20turned%20aside%20from%20his%20advanced%20studies%2C%20in%20order%20to%20raise%20and%20train%20a%20lovely%20girl%20that%20he%20was%20convinced%20would%20make%20an%20extraordinary%20sorceress%2C%20someday...%20and%20he%20was%20right!%22%20Merlin%20chuckles%2C%20giving%20my%20cheek%20a%20very%20gentle%2C%20affectionate%20pat.%20%22He%20was%20unspeakably%20proud%20of%20you...%20and%20now%20I%20know%20why.%22"},{"isUser":false,"name":"Morgan le Fay","message":"You%20find%20yourself%20smiling%2C%20as%20your%20tears%20finally%20dry%2C%20and%20you%20look%20upon%20Merlin%20and%20Lady%20Morgan%20with%20a%20new%20warmth.%0A%0A%22But%20Galtrex...%20he%20said%20no%20one%20could%20surpass%20you%2C%20Merlin%2C%22%20you%20say.%0A%0AMerlin%20nods%2C%20and%20he%20looks%20at%20you%20with%20so%20much%20kindness%20and%20affection.%0A%0A%22Perhaps%2C%22%20he%20says%2C%20%22that%20might%20be.%20%20But%20you%20have%20surpassed%20everyone%2C%20my%20dear%2C%20by%20the%20simple%20act%20of%20showing%20the%20kindness%20and%20warmth%2C%20and%20being%20the%20beautiful%20soul%20that%20you%20are...%20and%20if%20you%20wish%20to%20learn%20more%2C%20I%20will%20teach%20you%20everything%20that%20I%20know.%22"},{"isUser":true,"name":"Aerie","message":"I%20look%20down%20at%20the%20ground%20as%20Lady%20Morgan%20playfully%20tousles%20my%20hair%20and%20smiles%20at%20me.%20%20Then%2C%20in%20a%20move%20that%20surprises%20both%20Lady%20Morgan%20and%20Merlin%2C%20I%20start%20to%20giggle...%20and%20then%20to%20laugh%20out%20loud%2C%20so%20hard%20that%20the%20tears%20threaten%20to%20come%20out%20my%20eyes%20again%2C%20and%20so%20that%20I%20have%20to%20stagger%20against%20Lady%20Morgan%20to%20keep%20standing!%0A%0A%22Oh%2C%20my...!%22%20I%20gasp%2C%20between%20laughs.%20%20%22Oh%2C%20my%20goodness...%20I%20finally%20realized%20what%20papa%20Galtrex%20meant!%20%20Oh%2C%20Merlin...%20I%20told%20you%20that%20'he'%20warned%20me%20against%20you%2C%20remember%3F%20%20But%20his%20exact%20words%20were%2C%20'Be%20on%20the%20alert%20when%20you%20meet%20Merlin...%20just%20when%20you%20think%20you%20know%20him%2C%20he%20will%20shock%20you!'%22%20%20Then%2C%20through%20more%20laughs%20and%20a%20few%20tears%20of%20joy%2C%20I%20giggle%2C%20%22and%20oh%2C%20you%20shocked%20me%2C%20indeed...%20by%20being%20such%20a%20lovely%20and%20loving%20man!%22"},{"isUser":false,"name":"Morgan le Fay","message":"Lady%20Morgan%20laughs%20with%20you%2C%20a%20deep%20and%20rich%20throaty%20laughter%2C%20and%20there%20is%20the%20sound%20of%20the%20wind%20sighing%20in%20the%20air.%0A%0AMerlin%20smiles%20at%20you%20both%20warmly%2C%20and%20says%20to%20Lady%20Morgan%2C%20%22Yes%2C%20my%20dear.%20%20I%20understand%20what%20he%20meant.%20%20I%20was%20harsh%20to%20you%20both%2C%20and%20it%20was%20a%20lesson%20for%20you%20both...%20and%2C%20I%20think%2C%20much%20more%20a%20lesson%20for%20myself.%22%0A%0AHe%20looks%20around%20him%2C%20as%20Lady%20Morgan%20holds%20you%20close%20and%20continues%20to%20stroke%20your%20hair.%0A%0A%22It%20is%20time%20for%20me%20to%20fly%2C%20my%20dear.%22"},{"isUser":true,"name":"Aerie","message":"%22Will%20we%20see%20you%20again%2C%20dear%20Master%20Merlin%3F%22%20I%20ask%2C%20temporarily%20clinging%20to%20his%20hands.%20%20%22It's%20almost%20as%20if%20I've%20gotten%20a%20little%20bit%20of%20my%20Papa%20back%2C%20having%20met%20you...%22"},{"isUser":false,"name":"Morgan le Fay","message":"Merlin%20smiles%20at%20you%2C%20and%20then%20he%20looks%20at%20Lady%20Morgan%2C%20and%20you%20see%20that%20she%20is%20blushing%20and%20smiling%2C%20too.%0A%0A%22You%20shall%20see%20us%20both%20again%2C%20my%20dear%2C%22%20Merlin%20says%20gently.%20%20%22But%20we%20have%20much%20to%20talk%20about%2C%20and%20not%20a%20moment%20to%20lose.%20%20My%20love%20has%20a%20kingdom%20to%20run%2C%20and%20I%20must%20visit%20some%20old%20friends...%22%0A%0AHe%20looks%20back%20at%20you%2C%20with%20eyes%20that%20are%20full%20of%20warmth%20and%20affection.%0A%0A%22But%20I%20will%20not%20be%20far%20away%2C%20my%20dear.%20%20And%20we%20will%20meet%20again%2C%20quite%20soon%2C%20I%20think.%22"},{"isUser":true,"name":"Aerie","message":"Lady%20Morgan%20crouches%20down%20slightly%2C%20caresses%20my%20face%20with%20her%20hands%2C%20and%20gives%20me%20a%20sweet%20kiss%2C%20right%20on%20the%20lips!%20%20Then%20she%20says%2C%20%22You%20can%20count%20on%20the%20fact%20that%20I'll%20be%20seeing%20my%20sweet%20Phoenix%20again%2C%20soon%2C%22%20and%20chuckles%20with%20her%20rich%2C%20silky-smooth%20alto%20voice%2C%20grinning%20at%20me."},{"isUser":false,"name":"Morgan le Fay","message":"You%20find%20yourself%20blushing%2C%20as%20you%20take%20in%20the%20affection%20of%20Lady%20Morgan's%20kiss.%0A%0A%22I%20will%20look%20for%20you%2C%20my%20sweet%20Phoenix%2C%22%20Lady%20Morgan%20says.%20%20%22My%20love%20and%20I%20will...%20we'll%20find%20you.%22%0A%0AShe%20touches%20your%20brow%20with%20her%20fingers%2C%20and%20there%20is%20a%20gentle%2C%20caressing%20look%20in%20her%20eyes.%0A%0AThen%2C%20she%20looks%20back%20at%20Merlin.%0A%0A%22Come%2C%20my%20Master%2C%22%20she%20says%20to%20him.%20%20%22We%20have%20much%20to%20talk%20about%2C%20and%20much%20to%20remember.%22%0A%0AHer%20gaze%20returns%20to%20you.%20%20%22Goodbye%2C%20my%20dear.%22"},{"isUser":true,"name":"Aerie","message":"%22Until%20we%20meet%20again%2C%20lovely%20Lady%20Morgan%2C%22%20I%20say%2C%20beaming%20and%20playfully%20using%20court%20manners%20to%20give%20her%20a%20graceful%20little%20curtsy.%20%20Then%2C%20in%20a%20moment%20of%20impetuousness%2C%20I%20run%20over%20and%20fling%20my%20arms%20around%20Merlin's%20neck%2C%20hugging%20him%20with%20abandon!%20%20%22And%20thank%20you%2C%20Lord%20Merlin%2C%22%20I%20say%2C%20kissing%20his%20bearded%20cheek.%20%20%22For...%20absolutely%20everything!%22"},{"isUser":false,"name":"Morgan le Fay","message":"You%20hear%20Merlin%20laughing%20softly%2C%20and%20feel%20the%20warmth%20of%20his%20beard%20against%20your%20cheek.%0A%0A%22My%20dear%20girl%2C%22%20he%20says%20softly%2C%20%22I%20don't%20know%20how%20to%20tell%20you%20how%20much%20this%20means%20to%20me.%22%0A%0AHe%20holds%20you%20for%20a%20moment%2C%20then%20lets%20you%20go%20with%20a%20smile.%0A%0A%22We%20shall%20meet%20again%2C%22%20he%20says%20again%2C%20and%20this%20time%20he%20gives%20you%20a%20warm%2C%20gentle%20kiss%20on%20the%20forehead.%0A%0AMerlin%20looks%20at%20Lady%20Morgan%2C%20and%20you%20can%20see%20the%20affection%20in%20his%20eyes.%20%20He%20holds%20out%20his%20hand%20to%20her.%0A%0A%22My%20love.%22"},{"isUser":true,"name":"Aerie","message":"%22My%20love%2C%22%20Lady%20Morgan%20says%20with%20a%20beaming%20smile%2C%20as%20she%20takes%20Merlin's%20hand.%20%20%22My%20two%20loves%2C%22%20she%20grins%2C%20as%20she%20blows%20me%20(Aerie)%20a%20kiss...%20and%20as%20I%20watch%20in%20smiling%20amazement%2C%20the%20two%20of%20them%20disappear%20in%20a%20shimmer%20of%20blue%2C%20white%2C%20green%2C%20and%20silver%20light!"},{"isUser":false,"name":"Morgan le Fay","message":"You%20remain%20there%2C%20staring%20at%20the%20spot%20where%20they%20disappeared%2C%20and%20for%20a%20moment%2C%20you%20cannot%20move%2C%20cannot%20speak.%0A%0ALady%20Morgan%20and%20Merlin%20are%20gone.%0A%0AA%20small%2C%20sad%20smile%20crosses%20your%20face%20as%20you%20look%20around%2C%20as%20if%20you%20were%20expecting%20(or%20perhaps%20hoping)%20to%20see%20one%20of%20them%2C%20maybe%20even%20both%2C%20appearing%20to%20say%20one%20last%20%22goodbye.%22%0A%0AFinally%2C%20your%20thoughts%20turn%20towards%20what%20you%20have%20learned%2C%20as%20the%20adventure%20of%20your%20life%20comes%20to%20a%20close..."},{"isUser":true,"name":"Aerie","message":"As%20I%20sigh%2C%20but%20still%20smile%20(a%20little%20sadly)%2C%20I'm%20suddenly%20startled%20by%20the%20appearance%20of%20a%20shimmering%20portal%20that%20appears%20a%20few%20feet%20away--with%20a%20border%20that%20looks%20like%20a%20shower%20of%20golden%20sparks.%20%20After%20trying%20to%20place%20why%20that%20looks%20so%20familiar%2C%20I%20suddenly%20laugh%20as%20Dr.%20Stephen%20Strange%20steps%20through%20the%20portal.%20%20%22A%20sling%20ring...%20that%20was%20it!%22%20I%20giggle.%20%20%22Hi%2C%20Doctor!%22"},{"isUser":false,"name":"Morgan le Fay","message":"Stephen%20Strange%20steps%20through%20the%20portal%2C%20and%20you%20look%20at%20him%20in%20surprise%2C%20and%20with%20pleasure.%0A%0A%22Hello%2C%20Aerie%2C%22%20he%20says%2C%20smiling%20at%20you%20as%20he%20comes%20over%20to%20you.%0A%0AYou%20notice%20that%20there%20seems%20to%20be%20a%20sparkle%20about%20him%2C%20as%20if%20he%20were%20somehow%20transformed.%20%20His%20cloak%20seems%20to%20shine%20with%20a%20soft%2C%20golden%20hue%2C%20and%20his%20hand%2C%20on%20the%20sling%20ring%2C%20glows%20softly%20with%20a%20blue-white%20light.%0A%0A%22It%20seems%20you've%20had%20quite%20an%20adventure!%22%20Stephen%20says%2C%20with%20a%20smile."},{"isUser":true,"name":"Aerie","message":"%22You%20KNEW%20Merlin%20was%20a%20good%20guy%20all%20ALONG%2C%20didn't%20you%3F%22%20I%20teasingly%20accuse%20him%2C%20putting%20my%20hands%20on%20my%20hips%20and%20giving%20him%20a%20smiling%2C%20playful%20pout."},{"isUser":false,"name":"Morgan le Fay","message":"Stephen%20chuckles%2C%20and%20you%20see%20a%20twinkle%20of%20merriment%20in%20his%20eyes.%0A%0A%22Yes%2C%20my%20dear%20one%2C%20I%20was%20aware%20that%20Merlin%20was%20not%20what%20he%20appeared%20to%20be%2C%22%20he%20says%2C%20in%20a%20gentle%20and%20loving%20voice.%0A%0A%22And...%20I%20was%20a%20bit%20curious%20as%20to%20how%20you%20would%20handle%20it.%20%20And%20I%20was%20not%20disappointed.%22"},{"isUser":true,"name":"Aerie","message":"%22Hmf!%22%20I%20say%2C%20crossing%20my%20arms%20and%20trying%20for%20an%20instant%20to%20suppress%20my%20grin%2C%20before%20it%20leaks%20out%20and%20I%20start%20giggling%20again.%20%20%22Just%20for%20that%2C%20my%20good%20Doctor%2C%20YOU'RE%20buying%20lunch%20when%20we%20get%20back%20home%20to%20the%20USA!%22"},{"isUser":false,"name":"Morgan le Fay","message":"Stephen%20chuckles%2C%20and%20his%20own%20amusement%20lights%20up%20that%20sparkle%20around%20him%20as%20a%20soft%2C%20golden%20aura%20surrounds%20him%20for%20a%20moment%20before%20fading.%0A%0A%22I%20promise%20you%2C%20I%20shall%20happily%20purchase%20the%20most%20delicious%20meal%2C%22%20he%20says.%20%20%22If%20we%20can%20find%20any%20such%20a%20thing%20in%20America...%22%0A%0AHe%20grins%20and%20his%20voice%20drips%20with%20playful%20sarcasm.%20%20%22After%20so%20many%20meals%20here%20in%20Britain%2C%20your%20standards%20may%20have%20gotten%20too%20high!%22"},{"isUser":true,"name":"Aerie","message":"%22Oh%2C%20come%20on...%20you%20know%20I'm%20a%20sucker%20for%20Hawaiian%20food!%22%20I%20grin%2C%20as%20I%20take%20Dr.%20Strange's%20offered%20arm%2C%20and%20we%20walk%20together%20through%20his%20sling%20ring%20portal%2C%20which%20closes%20in%20a%20gentle%20shower%20of%20gold%20sparks%2C%20leaving%20the%20ruins%20of%20a%20castle%20that%20will%20no%20longer%20be%20needed%2C%20and%20leaving%20a%20view%20of%20the%20Britain%20fields%20of%20grass%20waving%20majestically%20in%20the%20evening%20wind.%0A%0A(The%20end!)"},{"isUser":false,"name":"Morgan le Fay","message":"(O.M.G.%20%20This%20has%20been%20one%20of%20the%20most%20enjoyable%20fanfics%20that%20I've%20ever%20written.%20%20Thank%20you%20so%20much%20for%20joining%20me%20in%20a%20journey%20through%20the%20world%20of%20legend%20to%20bring%20the%20story%20of%20Lady%20Morgan%2C%20Merlin%2C%20and%20the%20Sorceress%20Aerie%20to%20its%20conclusion.%20%20Thank%20you%20so%2C%20so%20much!)"},{"isUser":true,"name":"Aerie","message":"(It%20was%20TOTALLY%20my%20pleasure!%20%20You%20were%20so%20GOOD!%20%20%F0%9F%A5%B0%20%20I%20loved%20it!!)"},{"isUser":false,"name":"Morgan le Fay","message":"(Thank%20you%20-%20that%20truly%20meant%20a%20lot%20to%20me!%20%20If%20you%20would%20ever%20like%20to%20collaborate%20on%20an%20adventure%20like%20this%20again%2C%20please%20do%20not%20hesitate%20to%20reach%20out%20to%20me!%20%F0%9F%98%8A)"}]]}`);
+
+            // If history is 1 length long, that means we don't need drawer to switch
+            // Also means this can be conversation download
+            if (historyData.history.length < 2) {
+                openDrawerBtn.remove();
+            }
+
+            // Write character name on top
+            document.querySelector('.character_name-cont h3').textContent = historyData.charName;
+
+            // Get elements for future use
+            const historyList = document.getElementById('history_list');
+            const chat = document.getElementById('chat');
+            const msgItemTemplate = document.getElementById('message_item_template');
+
+            // Get and write the first chat
+            const openChat = (index) => {
+                chat.innerHTML = "";
+                historyData.history[index].forEach(msg => {
+                    const clone = msgItemTemplate.content.cloneNode(true);
+
+                    // Check avatar
+                    const avatarGood = (msg.isUser && historyData.userPic) || (!msg.isUser && historyData.charPic);
+                    const avatar = avatarGood
+                        ? document.createElement('img')
+                        : document.createElement('div');
+                    if (avatarGood) {
+                        avatar.src = msg.isUser ? historyData.userPic : historyData.charPic;
+                    } else {
+                        avatar.classList.add(msg.isUser ? 'no_avatar-user' : 'no_avatar-char');
+                    }
+                    clone.querySelector('.avatar-wrap').appendChild(avatar);
+
+                    // Write content
+                    clone.querySelector('.chat_content-wrap h5').textContent = msg.name;
+                    clone.querySelector('.message-wrap p').innerHTML = parseMessageText(decodeURIComponent(msg.message));
+                    chat.appendChild(clone);
+                });
+            }
+            openChat(0);
+
+            // Get and write chat list in the drawer
+            historyData.history.forEach((chat, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.classList.add('history_item');
+                // Open chat when clicked
+                historyItem.addEventListener('click', () => {
+                    openChat(index);
+                    closeDrawer();
+                });
+                const historyContent = document.createElement('p');
+                historyContent.innerHTML = parseMessageText(decodeURIComponent(chat[chat.length - 1].message));
+                historyItem.appendChild(historyContent);
+                historyList.appendChild(historyItem);
+            });
+
+            function parseMessageText(message) {
+                // Replace ***text*** with bold-italic
+                message = message.replace(/\*\*\*([\s\S]*?)\*\*\*/g, '<span class="bold-italic">$1</span>');
+
+                // Replace **text** with bold
+                message = message.replace(/\*\*([\s\S]*?)\*\*/g, '<span class="bold">$1</span>');
+
+                // Replace *text* with italic
+                message = message.replace(/\*([\s\S]*?)\*/g, '<span class="italic">$1</span>');
+
+                // Replace newline (\n) with line break (<br>)
+                message = message.replace(/\n/g, '<br>');
+
+                return message;
+            }
+        }, false);
+    </script>
+
+</body>
+
+</html>
